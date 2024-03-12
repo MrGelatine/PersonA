@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -83,21 +84,26 @@ fun FaceInfoScreen(
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.face_photo_description),
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+            modifier = Modifier
+                .height(200.dp)
+                .width(200.dp)
+                .align(alignment = Alignment.CenterHorizontally)
         )
         if(viewModel.faceInfoUI.value.featureList.isEmpty()) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 100.dp)) {
-
-                CircularProgressIndicator(modifier = Modifier.fillMaxSize())
+            Row(modifier= Modifier.align(alignment = Alignment.CenterHorizontally).weight(1f)) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(alignment = Alignment.CenterVertically)
+                )
             }
-        } else{
+        } else
+        {
             Column(modifier = Modifier
+                .weight(1f)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .weight(1f)
-                ) {
+            ) {
                 for (elem in viewModel.faceInfoUI.value.featureList) {
                     Row(modifier = Modifier
                         .fillMaxWidth()
@@ -113,7 +119,7 @@ fun FaceInfoScreen(
                                               },
                                     modifier = Modifier
                                         .padding(start = 10.dp)
-                                        .align(alignment= Alignment.CenterVertically)
+                                        .align(alignment = Alignment.CenterVertically)
                                         .height(25.dp)
                                         .width(25.dp),
                                     shape = CircleShape
@@ -129,7 +135,7 @@ fun FaceInfoScreen(
                                               },
                                     modifier = Modifier
                                         .padding(start = 10.dp)
-                                        .align(alignment= Alignment.CenterVertically)
+                                        .align(alignment = Alignment.CenterVertically)
                                         .height(25.dp)
                                         .width(25.dp),
                                     shape = CircleShape
@@ -166,15 +172,19 @@ fun FaceInfoScreen(
                     }
                 }
             }
+        }
+        Row(modifier = Modifier.weight(0.5f)) {
             Button(
                 onClick = { /*TODO*/ },
-                Modifier
-                    .padding(all = 10.dp)
+                enabled = viewModel.faceInfoUI.value.infoButtonEnabled,
+                modifier = Modifier
+                    .height(60.dp)
                     .fillMaxWidth()
-                    .padding(top = 40.dp)
-                    .height(60.dp)) {
+                    .align(alignment = Alignment.Bottom)
+            ) {
                 Text(text = "Load familiars")
             }
+
         }
 
     }

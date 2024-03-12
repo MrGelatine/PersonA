@@ -30,7 +30,7 @@ class PersonAAPIController(var faceInfoUI: MutableState<FaceInfoUi>) : Callback<
             val responseFields: FaceInfoResponse = response.body()!!
             Log.d("retrofit_post", responseFields.faceValue.toString())
             Log.d("retrofit_post", responseFields.faceValue.toString())
-            faceInfoUI.value = FaceInfoUi(faceInfoUI.value.imageUri, responseFields.faceValue)
+            faceInfoUI.value = FaceInfoUi(faceInfoUI.value.imageUri, responseFields.faceValue, true)
         } else {
             println(response.errorBody())
         }
@@ -42,6 +42,6 @@ class PersonAAPIController(var faceInfoUI: MutableState<FaceInfoUi>) : Callback<
     }
 
     companion object {
-        const val BASE_URL = "https://c38e-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://1b90-213-138-90-130.ngrok-free.app"
     }
 }
