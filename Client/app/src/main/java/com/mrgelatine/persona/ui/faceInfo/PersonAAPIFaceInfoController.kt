@@ -10,13 +10,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class PersonAAPIController(var faceInfoUI: MutableState<FaceInfoUi>) : Callback<FaceInfoResponse> {
-    fun start(faceBase64: String) {
+class PersonAAPIFaceInfoController(var faceInfoUI: MutableState<FaceInfoUI>) : Callback<FaceInfoResponse> {
+    fun sendFace(faceBase64: String) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(PersonAAPI.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
@@ -30,7 +30,7 @@ class PersonAAPIController(var faceInfoUI: MutableState<FaceInfoUi>) : Callback<
             val responseFields: FaceInfoResponse = response.body()!!
             Log.d("retrofit_post", responseFields.faceValue.toString())
             Log.d("retrofit_post", responseFields.faceValue.toString())
-            faceInfoUI.value = FaceInfoUi(faceInfoUI.value.imageUri, responseFields.faceValue, true)
+            faceInfoUI.value = FaceInfoUI(faceInfoUI.value.imageUri, responseFields.faceValue, true)
         } else {
             println(response.errorBody())
         }
@@ -41,7 +41,4 @@ class PersonAAPIController(var faceInfoUI: MutableState<FaceInfoUi>) : Callback<
         t.printStackTrace()
     }
 
-    companion object {
-        const val BASE_URL = "https://1b90-213-138-90-130.ngrok-free.app"
-    }
 }

@@ -62,22 +62,21 @@ object FaceInfoDestination: NavigationDestination{
 @Composable
 fun FaceInfoScreen(
     activity: Activity,
-    navigateBack: () -> Unit,
+    navigateToFaces: () -> Unit,
     choosedPhoto: MutableState<Uri>,
-    modifier: Modifier
+    features: MutableState<Map<String, Float>>
 ){
     val longTapState = remember{ mutableStateOf(false) }
-    val featureToSearch = remember{ mutableStateOf(mutableMapOf(Pair("", 0.0))) }
-    val coroutineScoop = rememberCoroutineScope()
+    val featureToSearch = remember{ mutableStateOf(mutableMapOf(Pair("", 0.0f))) }
+    val coroutineScope = rememberCoroutineScope()
     val viewModel:FaceInfoViewModel = viewModel()
     if(choosedPhoto.value != Uri.EMPTY) {
         viewModel.faceInfoUI.value.imageUri = choosedPhoto.value
     }
-    coroutineScoop.launch{
+    coroutineScope.launch{
         viewModel.sendFaceForFeatures(activity, choosedPhoto.value)
     }
     Column {
-
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(viewModel.faceInfoUI.value.imageUri)
@@ -146,7 +145,7 @@ fun FaceInfoScreen(
                             }
 
                         }else{
-                            featureToSearch.value = mutableMapOf(Pair("", 0.0))
+                            featureToSearch.value = mutableMapOf(Pair("", 0.0f))
                         }
 
                         Card(
@@ -175,7 +174,10 @@ fun FaceInfoScreen(
         }
         Row(modifier = Modifier.weight(0.5f)) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    features.value = featureToSearch.value
+                    navigateToFaces()
+                          },
                 enabled = viewModel.faceInfoUI.value.infoButtonEnabled,
                 modifier = Modifier
                     .height(60.dp)

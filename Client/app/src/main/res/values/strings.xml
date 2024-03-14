@@ -2,5 +2,6 @@
     <string name="app_name">PersonA</string>
     <string name="face_info_title">Face Info</string>
     <string name="image_picker_title">Image Picker</string>
+    <string name="similar_faces_title">Similar Faces</string>
     <string name="face_photo_description">Photo Description</string>
 </resources>
