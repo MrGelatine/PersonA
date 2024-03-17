@@ -11,12 +11,12 @@ import kotlinx.coroutines.async
 class SimilarFacesViewModel: ViewModel() {
     var free:Boolean = true
     val similarFacesUI: MutableState<SimilarFacesUI> = mutableStateOf(SimilarFacesUI())
-    suspend fun sendFeatureForFaces(features: Map<String, Float>, amount: Int){
+    suspend fun sendFeatureForFaces(features: Map<String, Float>, rawEmbedding:List<Float>, amount: Int){
         if(free && similarFacesUI.value.similarFacesUI.isEmpty()){
             free = false
             val apiJob  = viewModelScope.async(Dispatchers.IO) {
                 val personaAPIController = PersonAAPISimilarFaesController(similarFacesUI)
-                personaAPIController.sendFeatures(features, amount)
+                personaAPIController.sendFeatures(features, rawEmbedding, amount)
                 return@async true
             }
             free = apiJob.await()

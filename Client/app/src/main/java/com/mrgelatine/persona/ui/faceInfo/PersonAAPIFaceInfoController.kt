@@ -29,8 +29,8 @@ class PersonAAPIFaceInfoController(var faceInfoUI: MutableState<FaceInfoUI>) : C
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
             Log.d("retrofit_post", responseFields.faceValue.toString())
-            Log.d("retrofit_post", responseFields.faceValue.toString())
-            faceInfoUI.value = FaceInfoUI(faceInfoUI.value.imageUri, responseFields.faceValue, true)
+            Log.d("retrofit_post", responseFields.rawEmbedding.toString())
+            faceInfoUI.value = FaceInfoUI(faceInfoUI.value.imageUri, responseFields.faceValue, responseFields.rawEmbedding, true)
         } else {
             println(response.errorBody())
         }

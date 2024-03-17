@@ -26,6 +26,8 @@ fun PersonANavGraph(
 ){
     val imageUri = remember{ mutableStateOf(Uri.EMPTY) }
     val features = remember{ mutableStateOf(mapOf(Pair("",-1.0f))) }
+    val rawEmbedding = remember { mutableStateOf(listOf(0.0f))
+    }
     val amount = remember { mutableStateOf(0) }
     NavHost(
         navController = navController,
@@ -44,6 +46,7 @@ fun PersonANavGraph(
                 activity = activity,
                 navigateToFaces = {navController.navigate(SimilarFacesDestination.route)},
                 choosedPhoto = imageUri,
+                rawEmbedding = rawEmbedding,
                 features = features
             )
         }
@@ -52,6 +55,7 @@ fun PersonANavGraph(
                 navigateBack= {navController.popBackStack()},
                 features = features,
                 amount= amount,
+                rawEmbedding = rawEmbedding,
                 modifier= modifier
             )
         }

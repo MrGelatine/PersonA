@@ -15,10 +15,12 @@ data class FaceInfoRequest(
 
 data class FaceInfoResponse(
     @SerializedName("face") val faceValue: Map<String,Float>,
+    @SerializedName("raw_embedding") val rawEmbedding: List<Float>,
 )
 
 data class SimilarFacesRequest(
     @SerializedName("faceFeatures") val faceEmbedding: Map<String, Float>,
+    @SerializedName("rawEmbedding") val rawEmbedding: List<Float>,
     @SerializedName("amount") val amount: Int
 )
 
@@ -34,7 +36,7 @@ interface PersonAAPI {
     fun findFaces(@Body faceEmbedding: SimilarFacesRequest): Call<SimilarFacesResponse>
 
     companion object {
-        const val BASE_URL = "https://a05f-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://a7b5-213-138-90-130.ngrok-free.app"
     }
 
 }

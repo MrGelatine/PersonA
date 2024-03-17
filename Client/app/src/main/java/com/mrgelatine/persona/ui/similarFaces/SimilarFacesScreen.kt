@@ -39,12 +39,13 @@ fun SimilarFacesScreen(
     navigateBack: () -> Unit,
     features: MutableState<Map<String, Float>>,
     amount: MutableState<Int>,
+    rawEmbedding: MutableState<List<Float>>,
     modifier: Modifier
 ) {
     val viewModel:SimilarFacesViewModel = viewModel()
     val coroutineScope = rememberCoroutineScope()
     coroutineScope.launch {
-        viewModel.sendFeatureForFaces(features.value, amount.value)
+        viewModel.sendFeatureForFaces(features.value, rawEmbedding.value, amount.value)
     }
     Scaffold(
         topBar = {

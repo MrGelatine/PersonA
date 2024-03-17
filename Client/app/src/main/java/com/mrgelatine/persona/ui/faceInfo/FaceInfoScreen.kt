@@ -64,6 +64,7 @@ fun FaceInfoScreen(
     activity: Activity,
     navigateToFaces: () -> Unit,
     choosedPhoto: MutableState<Uri>,
+    rawEmbedding: MutableState<List<Float>>,
     features: MutableState<Map<String, Float>>
 ){
     val longTapState = remember{ mutableStateOf(false) }
@@ -146,6 +147,7 @@ fun FaceInfoScreen(
 
                         }else{
                             featureToSearch.value = mutableMapOf(Pair("", 0.0f))
+
                         }
 
                         Card(
@@ -176,6 +178,7 @@ fun FaceInfoScreen(
             Button(
                 onClick = {
                     features.value = featureToSearch.value
+                    rawEmbedding.value =  viewModel.faceInfoUI.value.rawEmbedding
                     navigateToFaces()
                           },
                 enabled = viewModel.faceInfoUI.value.infoButtonEnabled,

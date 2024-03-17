@@ -11,7 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class PersonAAPISimilarFaesController(val similarFacesUI: MutableState<SimilarFacesUI>): Callback<SimilarFacesResponse> {
-    fun sendFeatures(faceEmbedding: Map<String, Float>, amount: Int) {
+    fun sendFeatures(faceEmbedding: Map<String, Float>, rawEmbedding:List<Float>, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -20,7 +20,7 @@ class PersonAAPISimilarFaesController(val similarFacesUI: MutableState<SimilarFa
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceEmbedding, amount))
+        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceEmbedding, rawEmbedding, amount))
 
         call.enqueue(this)
     }
