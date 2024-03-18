@@ -21,8 +21,16 @@ class FaceInfoViewModel: ViewModel() {
             free = false
             val apiJob  = viewModelScope.async(Dispatchers.IO) {
                 val personaAPIController = PersonAAPIFaceInfoController(faceInfoUI)
-                val faceBitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, choosedPhoto)
-
+                var faceBitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, choosedPhoto)
+                var imageWidth = faceBitmap.width
+                var imageHeight = faceBitmap.height
+                if(faceBitmap.width > 256){
+                    imageWidth = 256
+                }
+                if (faceBitmap.height > 256){
+                    imageHeight = 256
+                }
+                faceBitmap = Bitmap.createScaledBitmap(faceBitmap, imageWidth, imageHeight, false)
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
                 val byteArray = byteArrayOutputStream.toByteArray()
