@@ -4,13 +4,14 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
+import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class PersonAAPISimilarFaesController(val similarFacesUI: MutableState<SimilarFacesUI>): Callback<SimilarFacesResponse> {
+class PersonAAPISimilarFaesController(val similarFacesUIViewModel: SimilarFacesViewModel): Callback<SimilarFacesResponse> {
     fun sendFeatures(faceEmbedding: Map<String, Float>, rawEmbedding:List<Float>, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
@@ -29,8 +30,7 @@ class PersonAAPISimilarFaesController(val similarFacesUI: MutableState<SimilarFa
         if (response.isSuccessful) {
             val responseFields: SimilarFacesResponse = response.body()!!
             Log.d("retrofit_post", responseFields.similarFaces.size.toString())
-            similarFacesUI.value = SimilarFacesUI(similarFacesUI = responseFields.similarFaces)
-
+            similarFacesUIViewModel.changeUI(SimilarFacesUI(similarFacesUI = responseFields.similarFaces))
         } else {
             println(response.errorBody())
         }

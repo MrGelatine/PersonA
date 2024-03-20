@@ -71,8 +71,9 @@ fun FaceInfoScreen(
     val featureToSearch = remember{ mutableStateOf(mutableMapOf(Pair("", 0.0f))) }
     val coroutineScope = rememberCoroutineScope()
     val viewModel:FaceInfoViewModel = viewModel()
+    val faceInfoUI = viewModel.faceInfoUI.collectAsState()
     if(choosedPhoto.value != Uri.EMPTY) {
-        viewModel.faceInfoUI.value.imageUri = choosedPhoto.value
+        faceInfoUI.value.imageUri = choosedPhoto.value
     }
     coroutineScope.launch{
         viewModel.sendFaceForFeatures(activity, choosedPhoto.value)
@@ -80,35 +81,37 @@ fun FaceInfoScreen(
     Column {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(viewModel.faceInfoUI.value.imageUri)
+                .data(faceInfoUI.value.imageUri)
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.face_photo_description),
             modifier = Modifier
-                .height(200.dp)
-                .width(200.dp)
-                .align(alignment = Alignment.CenterHorizontally)
+                    .height(200.dp)
+                    .width(200.dp)
+                    .align(alignment = Alignment.CenterHorizontally)
         )
-        if(viewModel.faceInfoUI.value.featureList.isEmpty()) {
-            Row(modifier= Modifier.align(alignment = Alignment.CenterHorizontally).weight(1f)) {
+        if(faceInfoUI.value.featureList.isEmpty()) {
+            Row(modifier= Modifier
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .weight(1f)) {
                 CircularProgressIndicator(
                     modifier = Modifier
-                        .size(100.dp)
-                        .align(alignment = Alignment.CenterVertically)
+                            .size(100.dp)
+                            .align(alignment = Alignment.CenterVertically)
                 )
             }
         } else
         {
             Column(modifier = Modifier
-                .weight(1f)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                    .weight(1f)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                for (elem in viewModel.faceInfoUI.value.featureList) {
+                for (elem in faceInfoUI.value.featureList) {
                     Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                        .height(50.dp)
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp)
+                            .height(50.dp)
                     ) {
                         if(longTapState.value){
                             var buttonState = remember{ mutableStateOf(false) }
@@ -118,10 +121,10 @@ fun FaceInfoScreen(
                                                 buttonState.value = !buttonState.value
                                               },
                                     modifier = Modifier
-                                        .padding(start = 10.dp)
-                                        .align(alignment = Alignment.CenterVertically)
-                                        .height(25.dp)
-                                        .width(25.dp),
+                                            .padding(start = 10.dp)
+                                            .align(alignment = Alignment.CenterVertically)
+                                            .height(25.dp)
+                                            .width(25.dp),
                                     shape = CircleShape
 
                                 ) {
@@ -134,10 +137,10 @@ fun FaceInfoScreen(
                                         buttonState.value = !buttonState.value
                                               },
                                     modifier = Modifier
-                                        .padding(start = 10.dp)
-                                        .align(alignment = Alignment.CenterVertically)
-                                        .height(25.dp)
-                                        .width(25.dp),
+                                            .padding(start = 10.dp)
+                                            .align(alignment = Alignment.CenterVertically)
+                                            .height(25.dp)
+                                            .width(25.dp),
                                     shape = CircleShape
 
                                 ) {
@@ -155,15 +158,15 @@ fun FaceInfoScreen(
                                 defaultElevation = 10.dp
                             ),
                             modifier = Modifier
-                                .padding(start = 10.dp, end = 10.dp)
-                                .fillMaxHeight()
-                                .fillMaxWidth()
-                                .combinedClickable(
-                                    onClick = {},
-                                    onLongClick = {
-                                        longTapState.value = !longTapState.value
-                                    }
-                                )
+                                    .padding(start = 10.dp, end = 10.dp)
+                                    .fillMaxHeight()
+                                    .fillMaxWidth()
+                                    .combinedClickable(
+                                            onClick = {},
+                                            onLongClick = {
+                                                longTapState.value = !longTapState.value
+                                            }
+                                    )
                         ) {
                             Text(
                                 text = elem.key + elem.value,
@@ -181,11 +184,11 @@ fun FaceInfoScreen(
                     rawEmbedding.value =  viewModel.faceInfoUI.value.rawEmbedding
                     navigateToFaces()
                           },
-                enabled = viewModel.faceInfoUI.value.infoButtonEnabled,
+                enabled = faceInfoUI.value.infoButtonEnabled,
                 modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Bottom)
+                        .height(60.dp)
+                        .fillMaxWidth()
+                        .align(alignment = Alignment.Bottom)
             ) {
                 Text(text = "Load familiars")
             }

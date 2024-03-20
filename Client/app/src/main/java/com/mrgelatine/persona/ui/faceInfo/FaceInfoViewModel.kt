@@ -11,16 +11,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
 class FaceInfoViewModel: ViewModel() {
     var free:Boolean = true
-    val faceInfoUI: MutableState<FaceInfoUI> = mutableStateOf(FaceInfoUI())
+    val faceInfoUI: MutableStateFlow<FaceInfoUI> = MutableStateFlow(FaceInfoUI())
     suspend fun sendFaceForFeatures(activity: Activity, choosedPhoto: Uri){
+        val vm = this
         if(free && faceInfoUI.value.featureList.isEmpty()){
             free = false
             val apiJob  = viewModelScope.async(Dispatchers.IO) {
-                val personaAPIController = PersonAAPIFaceInfoController(faceInfoUI)
+                val personaAPIController = PersonAAPIFaceInfoController(vm)
                 var faceBitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, choosedPhoto)
                 var imageWidth = faceBitmap.width
                 var imageHeight = faceBitmap.height
@@ -40,6 +43,10 @@ class FaceInfoViewModel: ViewModel() {
             }
             free = apiJob.await()
         }
-
+    }
+    fun updateUI(value:FaceInfoUI){
+        viewModelScope.launch {
+            faceInfoUI.emit(value)
+        }
     }
 }

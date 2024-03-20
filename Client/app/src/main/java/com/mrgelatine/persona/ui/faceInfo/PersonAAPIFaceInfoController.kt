@@ -3,6 +3,7 @@ package com.mrgelatine.persona.ui.faceInfo
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -10,7 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class PersonAAPIFaceInfoController(var faceInfoUI: MutableState<FaceInfoUI>) : Callback<FaceInfoResponse> {
+class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) : Callback<FaceInfoResponse> {
     fun sendFace(faceBase64: String) {
         val gson = GsonBuilder()
             .setLenient()
@@ -30,7 +31,7 @@ class PersonAAPIFaceInfoController(var faceInfoUI: MutableState<FaceInfoUI>) : C
             val responseFields: FaceInfoResponse = response.body()!!
             Log.d("retrofit_post", responseFields.faceValue.toString())
             Log.d("retrofit_post", responseFields.rawEmbedding.toString())
-            faceInfoUI.value = FaceInfoUI(faceInfoUI.value.imageUri, responseFields.faceValue, responseFields.rawEmbedding, true)
+            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceValue, responseFields.rawEmbedding, true))
         } else {
             println(response.errorBody())
         }
