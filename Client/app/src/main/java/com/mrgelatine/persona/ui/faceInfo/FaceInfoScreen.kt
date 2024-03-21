@@ -2,13 +2,8 @@ package com.mrgelatine.persona.ui.faceInfo
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.graphics.Bitmap
-import android.graphics.drawable.shapes.Shape
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,10 +42,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 
 
 object FaceInfoDestination: NavigationDestination{
@@ -65,9 +57,9 @@ fun FaceInfoScreen(
     navigateToFaces: () -> Unit,
     choosedPhoto: MutableState<Uri>,
     rawEmbedding: MutableState<List<Float>>,
-    features: MutableState<Map<String, Float>>
+    rawFeatures: Map<String, Float>
 ){
-    val longTapState = remember{ mutableStateOf(false) }
+    val features = remember {mutableStateOf(rawFeatures.toMutableMap())}
     val featureToSearch = remember{ mutableStateOf(mutableMapOf(Pair("", 0.0f))) }
     val coroutineScope = rememberCoroutineScope()
     val viewModel:FaceInfoViewModel = viewModel()
@@ -107,74 +99,7 @@ fun FaceInfoScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                for (elem in faceInfoUI.value.featureList) {
-                    Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
-                            .height(50.dp)
-                    ) {
-                        if(longTapState.value){
-                            var buttonState = remember{ mutableStateOf(false) }
-                            if(buttonState.value){
-                                Button(
-                                    onClick = {
-                                                buttonState.value = !buttonState.value
-                                              },
-                                    modifier = Modifier
-                                            .padding(start = 10.dp)
-                                            .align(alignment = Alignment.CenterVertically)
-                                            .height(25.dp)
-                                            .width(25.dp),
-                                    shape = CircleShape
-
-                                ) {
-
-                                }
-                            }else{
-                                OutlinedButton(
-                                    onClick = {
-                                        featureToSearch.value[elem.key] = elem.value
-                                        buttonState.value = !buttonState.value
-                                              },
-                                    modifier = Modifier
-                                            .padding(start = 10.dp)
-                                            .align(alignment = Alignment.CenterVertically)
-                                            .height(25.dp)
-                                            .width(25.dp),
-                                    shape = CircleShape
-
-                                ) {
-
-                                }
-                            }
-
-                        }else{
-                            featureToSearch.value = mutableMapOf(Pair("", 0.0f))
-
-                        }
-
-                        Card(
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 10.dp
-                            ),
-                            modifier = Modifier
-                                    .padding(start = 10.dp, end = 10.dp)
-                                    .fillMaxHeight()
-                                    .fillMaxWidth()
-                                    .combinedClickable(
-                                            onClick = {},
-                                            onLongClick = {
-                                                longTapState.value = !longTapState.value
-                                            }
-                                    )
-                        ) {
-                            Text(
-                                text = elem.key + elem.value,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
+                FeatureList(faceInfoUI.value, featureToSearch)
             }
         }
         Row(modifier = Modifier.weight(0.5f)) {
@@ -195,6 +120,83 @@ fun FaceInfoScreen(
 
         }
 
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun FeatureList(
+        faceInfoUI: FaceInfoUI,
+        featureToSearch: MutableState<MutableMap<String, Float>>
+){
+    var longTapState by remember{ mutableStateOf(false) }
+    for (elem in faceInfoUI.featureList) {
+        Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp)
+                .height(50.dp)
+        ) {
+            if(longTapState){
+                var buttonState by remember{ mutableStateOf(false) }
+                if(buttonState){
+                    Button(
+                            onClick = {
+                                buttonState = !buttonState
+                            },
+                            modifier = Modifier
+                                    .padding(start = 10.dp)
+                                    .align(alignment = Alignment.CenterVertically)
+                                    .height(25.dp)
+                                    .width(25.dp),
+                            shape = CircleShape
+
+                    ) {
+
+                    }
+                }else{
+                    OutlinedButton(
+                            onClick = {
+                                featureToSearch.value[elem.key] = elem.value
+                                buttonState = !buttonState
+                            },
+                            modifier = Modifier
+                                    .padding(start = 10.dp)
+                                    .align(alignment = Alignment.CenterVertically)
+                                    .height(25.dp)
+                                    .width(25.dp),
+                            shape = CircleShape
+
+                    ) {
+
+                    }
+                }
+
+            }else{
+                featureToSearch.value = mutableMapOf(Pair("", 0.0f))
+
+            }
+
+            Card(
+                    elevation = CardDefaults.cardElevation(
+                            defaultElevation = 10.dp
+                    ),
+                    modifier = Modifier
+                            .padding(start = 10.dp, end = 10.dp)
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .combinedClickable(
+                                    onClick = {},
+                                    onLongClick = {
+                                        longTapState = !longTapState
+                                    }
+                            )
+            ) {
+                Text(
+                        text = elem.key + elem.value,
+                        textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 

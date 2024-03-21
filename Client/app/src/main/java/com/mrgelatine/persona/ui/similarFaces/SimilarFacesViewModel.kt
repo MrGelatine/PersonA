@@ -1,10 +1,8 @@
 package com.mrgelatine.persona.ui.similarFaces
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrgelatine.persona.ui.faceInfo.PersonAAPISimilarFaesController
+import com.mrgelatine.persona.api.PersonAAPISimilarFaesController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow

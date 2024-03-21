@@ -1,7 +1,6 @@
-package com.mrgelatine.persona.ui.faceInfo
+package com.mrgelatine.persona.api
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel

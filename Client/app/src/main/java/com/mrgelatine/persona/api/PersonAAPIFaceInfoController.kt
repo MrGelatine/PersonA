@@ -1,9 +1,9 @@
-package com.mrgelatine.persona.ui.faceInfo
+package com.mrgelatine.persona.api
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

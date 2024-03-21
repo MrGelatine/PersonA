@@ -1,13 +1,9 @@
-package com.mrgelatine.persona.ui.faceInfo
+package com.mrgelatine.persona.api
 
 import com.google.gson.annotations.SerializedName
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.Query
-import retrofit2.http.Url
-import java.util.Base64
 
 data class FaceInfoRequest(
     @SerializedName("faceBase64") val faceBase64: String
@@ -36,7 +32,7 @@ interface PersonAAPI {
     fun findFaces(@Body faceEmbedding: SimilarFacesRequest): Call<SimilarFacesResponse>
 
     companion object {
-        const val BASE_URL = "https://4f97-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://92a9-213-138-90-130.ngrok-free.app"
     }
 
 }

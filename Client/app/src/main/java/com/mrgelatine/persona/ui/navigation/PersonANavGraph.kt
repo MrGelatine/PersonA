@@ -47,7 +47,7 @@ fun PersonANavGraph(
                 navigateToFaces = {navController.navigate(SimilarFacesDestination.route)},
                 choosedPhoto = imageUri,
                 rawEmbedding = rawEmbedding,
-                features = features
+                rawFeatures = features.value
             )
         }
         composable(route = SimilarFacesDestination.route){
