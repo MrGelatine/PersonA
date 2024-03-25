@@ -1,26 +1,23 @@
 package com.mrgelatine.persona.ui.similarFaces
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrgelatine.persona.api.PersonAAPISimilarFaesController
+import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 class SimilarFacesViewModel: ViewModel() {
-    var free:Boolean = true
     val similarFacesUI: MutableStateFlow<SimilarFacesUI> = MutableStateFlow(SimilarFacesUI())
-    suspend fun sendFeatureForFaces(features: Map<String, Float>, rawEmbedding:List<Float>, amount: Int){
+    fun sendFeatureForFaces(features: Map<String, Float>, rawEmbedding:List<Float>, amount: Int){
         val vm = this
-        if(free && similarFacesUI.value.similarFacesUI.isEmpty()){
-            free = false
-            val apiJob  = viewModelScope.async(Dispatchers.IO) {
-                val personaAPIController = PersonAAPISimilarFaesController(vm)
-                personaAPIController.sendFeatures(features, rawEmbedding, amount)
-                return@async true
-            }
-            free = apiJob.await()
+        viewModelScope.launch(Dispatchers.IO) {
+            val personaAPIController = PersonAAPISimilarFaceController(vm)
+            personaAPIController.sendFeatures(features, rawEmbedding, amount)
         }
     }
     fun changeUI(value:SimilarFacesUI){

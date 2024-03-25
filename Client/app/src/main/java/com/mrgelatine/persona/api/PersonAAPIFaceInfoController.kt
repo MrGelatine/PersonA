@@ -29,9 +29,7 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) : C
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            Log.d("retrofit_post", responseFields.faceValue.toString())
-            Log.d("retrofit_post", responseFields.rawEmbedding.toString())
-            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceValue, responseFields.rawEmbedding, true))
+            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceValue, mapOf(), responseFields.rawEmbedding, true))
         } else {
             println(response.errorBody())
         }

@@ -3,6 +3,7 @@ package com.mrgelatine.persona.ui.faceInfo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -37,11 +39,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
+import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
+import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
 import kotlinx.coroutines.launch
 
 
@@ -49,31 +54,20 @@ object FaceInfoDestination: NavigationDestination{
     override val route: String = "face_info"
     override val titleRes: Int = R.string.image_picker_title
 }
-@OptIn(ExperimentalFoundationApi::class)
-@SuppressLint("CoroutineCreationDuringComposition")
+@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun FaceInfoScreen(
-    activity: Activity,
     navigateToFaces: () -> Unit,
-    choosedPhoto: MutableState<Uri>,
-    rawEmbedding: MutableState<List<Float>>,
-    rawFeatures: Map<String, Float>
+    faceInfoViewModel: FaceInfoViewModel,
+    similarFacesViewModel: SimilarFacesViewModel
+
 ){
-    val features = remember {mutableStateOf(rawFeatures.toMutableMap())}
-    val featureToSearch = remember{ mutableStateOf(mutableMapOf(Pair("", 0.0f))) }
-    val coroutineScope = rememberCoroutineScope()
-    val viewModel:FaceInfoViewModel = viewModel()
-    val faceInfoUI = viewModel.faceInfoUI.collectAsState()
-    if(choosedPhoto.value != Uri.EMPTY) {
-        faceInfoUI.value.imageUri = choosedPhoto.value
-    }
-    coroutineScope.launch{
-        viewModel.sendFaceForFeatures(activity, choosedPhoto.value)
-    }
+    val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
+    val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(faceInfoUI.value.imageUri)
+                .data(faceInfoUI.imageUri)
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.face_photo_description),
@@ -82,7 +76,7 @@ fun FaceInfoScreen(
                     .width(200.dp)
                     .align(alignment = Alignment.CenterHorizontally)
         )
-        if(faceInfoUI.value.featureList.isEmpty()) {
+        if(faceInfoUI.featureList.isEmpty()) {
             Row(modifier= Modifier
                     .align(alignment = Alignment.CenterHorizontally)
                     .weight(1f)) {
@@ -92,24 +86,23 @@ fun FaceInfoScreen(
                             .align(alignment = Alignment.CenterVertically)
                 )
             }
-        } else
-        {
+        } else {
             Column(modifier = Modifier
                     .weight(1f)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                FeatureList(faceInfoUI.value, featureToSearch)
+                FeatureList(faceInfoUI, featureToSearch)
             }
         }
         Row(modifier = Modifier.weight(0.5f)) {
             Button(
                 onClick = {
-                    features.value = featureToSearch.value
-                    rawEmbedding.value =  viewModel.faceInfoUI.value.rawEmbedding
+                    similarFacesViewModel.changeUI(SimilarFacesUI())
+                    similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,faceInfoUI.rawEmbedding, 10)
                     navigateToFaces()
                           },
-                enabled = faceInfoUI.value.infoButtonEnabled,
+                enabled = faceInfoUI.infoButtonEnabled,
                 modifier = Modifier
                         .height(60.dp)
                         .fillMaxWidth()
@@ -172,8 +165,7 @@ fun FeatureList(
                 }
 
             }else{
-                featureToSearch.value = mutableMapOf(Pair("", 0.0f))
-
+                featureToSearch.value = mutableMapOf()
             }
 
             Card(

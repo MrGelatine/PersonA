@@ -1,5 +1,6 @@
 package com.mrgelatine.persona.ui.imagePicker
 
+import android.app.Activity
 import android.graphics.ImageDecoder.ImageInfo
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,6 +11,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mrgelatine.persona.R
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 
 object ImagePickerDestination: NavigationDestination{
@@ -20,14 +23,15 @@ object ImagePickerDestination: NavigationDestination{
 @Composable
 fun ImagePickerScreen(
     navigateToImageInfo: () -> Unit,
-    choosedPhoto: MutableState<Uri>,
-    modifier: Modifier
+    faceInfoViewModel: FaceInfoViewModel,
+    activity: Activity
 ){
     val imagePickerDialog = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(),
         onResult = {
             uri ->
             run {
-                choosedPhoto.value = uri!!
+                faceInfoViewModel.updateUI(FaceInfoUI(uri!!))
+                faceInfoViewModel.sendFaceForFeatures(activity, uri!!)
                 navigateToImageInfo()
             }
     })

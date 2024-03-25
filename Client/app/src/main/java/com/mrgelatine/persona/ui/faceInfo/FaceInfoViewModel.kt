@@ -15,15 +15,13 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
 class FaceInfoViewModel: ViewModel() {
-    var free:Boolean = true
-    val faceInfoUI: MutableStateFlow<FaceInfoUI> = MutableStateFlow(FaceInfoUI())
-    suspend fun sendFaceForFeatures(activity: Activity, choosedPhoto: Uri){
+    var faceInfoUI: MutableStateFlow<FaceInfoUI> = MutableStateFlow(FaceInfoUI())
+    fun sendFaceForFeatures(activity: Activity, imgUri:Uri){
         val vm = this
-        if(free && faceInfoUI.value.featureList.isEmpty()){
-            free = false
-            val apiJob  = viewModelScope.async(Dispatchers.IO) {
+        if (imgUri != faceInfoUI.value.imageUri){
+            viewModelScope.launch(Dispatchers.IO) {
                 val personaAPIController = PersonAAPIFaceInfoController(vm)
-                var faceBitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, choosedPhoto)
+                var faceBitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, faceInfoUI.value.imageUri)
                 var imageWidth = faceBitmap.width
                 var imageHeight = faceBitmap.height
                 if(faceBitmap.width > 256){
@@ -38,10 +36,9 @@ class FaceInfoViewModel: ViewModel() {
                 val byteArray = byteArrayOutputStream.toByteArray()
                 val encoded: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
                 personaAPIController.sendFace(encoded)
-                return@async true
             }
-            free = apiJob.await()
         }
+
     }
     fun updateUI(value:FaceInfoUI){
         viewModelScope.launch {
