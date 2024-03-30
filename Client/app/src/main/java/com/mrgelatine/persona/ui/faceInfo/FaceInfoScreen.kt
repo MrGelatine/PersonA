@@ -2,9 +2,13 @@ package com.mrgelatine.persona.ui.faceInfo
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -65,17 +70,31 @@ fun FaceInfoScreen(
     val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(faceInfoUI.imageUri)
-                .crossfade(true)
-                .build(),
-            contentDescription = stringResource(R.string.face_photo_description),
-            modifier = Modifier
-                    .height(200.dp)
-                    .width(200.dp)
-                    .align(alignment = Alignment.CenterHorizontally)
-        )
+        if(faceInfoUI.imageUri != Uri.EMPTY){
+            AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                            .data(faceInfoUI.imageUri)
+                            .crossfade(true)
+                            .build(),
+                    contentDescription = stringResource(R.string.face_photo_description),
+                    modifier = Modifier
+                            .height(200.dp)
+                            .width(200.dp)
+                            .align(alignment = Alignment.CenterHorizontally)
+            )
+        }else{
+            val decodedString: ByteArray = Base64.decode(faceInfoUI.rawImage, Base64.DEFAULT)
+            val decodedFace =
+                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+            Image(
+                    bitmap = decodedFace.asImageBitmap(),
+                    contentDescription = "some useful description",
+                    modifier = Modifier
+                            .height(200.dp)
+                            .width(200.dp)
+                            .align(alignment = Alignment.CenterHorizontally)
+            )
+        }
         if(faceInfoUI.featureList.isEmpty()) {
             Row(modifier= Modifier
                     .align(alignment = Alignment.CenterHorizontally)

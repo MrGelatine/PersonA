@@ -51,7 +51,6 @@ fun PersonANavGraph(
         }
         composable(route = FaceInfoDestination.route){
             Log.d("face_info_start", "")
-            faceInfoViewModel.sendFaceForFeatures(activity, imageUri.value)
             FaceInfoScreen(
                     navigateToFaces = {navController.navigate(SimilarFacesDestination.route)},
                     faceInfoViewModel= faceInfoViewModel,
@@ -62,7 +61,9 @@ fun PersonANavGraph(
 
             SimilarFacesScreen(
                     navigateBack= {navController.popBackStack()},
-                    similarFacesViewModel = similarFacesViewModel
+                    similarFacesViewModel = similarFacesViewModel,
+                    faceInfoViewModel= faceInfoViewModel,
+                    navigateToFaceInfo = {navController.navigate(FaceInfoDestination.route)}
             )
         }
     }

@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -29,6 +30,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.mrgelatine.persona.R
+import com.mrgelatine.persona.api.FaceInfo
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
+import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -43,7 +47,9 @@ object SimilarFacesDestination: NavigationDestination {
 @Composable
 fun SimilarFacesScreen(
         navigateBack: () -> Unit,
-        similarFacesViewModel: SimilarFacesViewModel
+        similarFacesViewModel: SimilarFacesViewModel,
+        faceInfoViewModel: FaceInfoViewModel,
+        navigateToFaceInfo: () -> Unit,
 ) {
     val similarFacesUI = similarFacesViewModel.similarFacesUI.collectAsState()
     Scaffold(
@@ -55,12 +61,17 @@ fun SimilarFacesScreen(
         innerPadding ->
         LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.padding(innerPadding)) {
             items(similarFacesUI.value.similarFacesUI) { similarFace ->
-                val decodedString: ByteArray = Base64.decode(similarFace, Base64.DEFAULT)
+                val decodedString: ByteArray = Base64.decode(similarFace.rawImage, Base64.DEFAULT)
                 val decodedFace =
                     BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
                 Image(
                     bitmap = decodedFace.asImageBitmap(),
-                    contentDescription = "some useful description"
+                    contentDescription = "some useful description",
+                        modifier = Modifier.clickable {
+                            faceInfoViewModel.updateUI(FaceInfoUI(featureList = similarFace.faceFeatures,
+                                    rawEmbedding = similarFace.rawEmbedding, rawImage = similarFace.rawImage, infoButtonEnabled = true))
+                            navigateToFaceInfo()
+                        }
                 )
             }
 

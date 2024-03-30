@@ -28,6 +28,7 @@ class PersonAAPISimilarFaceController(val similarFacesUIViewModel: SimilarFacesV
     override fun onResponse(call: Call<SimilarFacesResponse>, response: Response<SimilarFacesResponse>) {
         if (response.isSuccessful) {
             val responseFields: SimilarFacesResponse = response.body()!!
+            val similarFaces = responseFields.similarFaces
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
             similarFacesUIViewModel.changeUI(SimilarFacesUI(similarFacesUI = responseFields.similarFaces))
         } else {
