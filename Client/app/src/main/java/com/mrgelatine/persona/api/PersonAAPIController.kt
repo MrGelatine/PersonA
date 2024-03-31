@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
 import retrofit2.Call
@@ -74,6 +75,37 @@ class PersonAAPISimilarFaceController(val similarFacesUIViewModel: SimilarFacesV
         t.printStackTrace()
     }
 
+}
 
+class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewModel) :
+    Callback<RandomFaceResponse> {
+    fun getRandomFace() {
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(PersonAAPI.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
+        val call: Call<RandomFaceResponse> = personAAPI.getRandomFace()
+
+        call.enqueue(this)
+    }
+
+    override fun onResponse(call: Call<RandomFaceResponse>, response: Response<RandomFaceResponse>) {
+        if (response.isSuccessful) {
+            val responseFields: RandomFaceResponse = response.body()!!
+            val randomFace = responseFields.radnomFace
+            print(randomFace.faceFeatures)
+        } else {
+            println(response.errorBody())
+        }
+    }
+
+    override fun onFailure(call: Call<RandomFaceResponse?>?, t: Throwable) {
+        Log.d("retrofit_get", "Error!")
+        t.printStackTrace()
+    }
 
 }
