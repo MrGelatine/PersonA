@@ -52,6 +52,7 @@ fun PersonANavGraph(
         composable(route = FaceInfoDestination.route){
             Log.d("face_info_start", "")
             FaceInfoScreen(
+                    navigateToImagePicker = {navController.popBackStack()},
                     navigateToFaces = {navController.navigate(SimilarFacesDestination.route)},
                     faceInfoViewModel= faceInfoViewModel,
                     similarFacesViewModel = similarFacesViewModel
@@ -63,7 +64,7 @@ fun PersonANavGraph(
                     navigateBack= {navController.popBackStack()},
                     similarFacesViewModel = similarFacesViewModel,
                     faceInfoViewModel= faceInfoViewModel,
-                    navigateToFaceInfo = {navController.navigate(FaceInfoDestination.route)}
+                    navigateToFaceInfo = {navController.popBackStack()}
             )
         }
     }

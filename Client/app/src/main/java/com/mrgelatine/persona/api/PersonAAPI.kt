@@ -36,7 +36,7 @@ interface PersonAAPI {
     fun findFaces(@Body faceEmbedding: SimilarFacesRequest): Call<SimilarFacesResponse>
 
     companion object {
-        const val BASE_URL = "https://9588-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://0a90-213-138-90-130.ngrok-free.app"
     }
 
 }

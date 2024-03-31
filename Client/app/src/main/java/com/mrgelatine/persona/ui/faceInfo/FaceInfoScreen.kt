@@ -62,6 +62,7 @@ object FaceInfoDestination: NavigationDestination{
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun FaceInfoScreen(
+    navigateToImagePicker: () -> Unit,
     navigateToFaces: () -> Unit,
     faceInfoViewModel: FaceInfoViewModel,
     similarFacesViewModel: SimilarFacesViewModel
