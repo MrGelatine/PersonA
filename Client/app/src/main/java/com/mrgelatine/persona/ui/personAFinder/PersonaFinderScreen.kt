@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,42 +36,42 @@ fun PersonaFinderScreen(
     navigateBackToImagePicker: () -> Unit,
     personaFinderViewModel: PersonaFinderViewModel
 ){
-    val state = rememberSwipeableCardState()
     val personaFinderUIState by personaFinderViewModel.personaFinderUI.collectAsState()
     Column {
-        Box(modifier = Modifier.swipableCard(
-            state = state,
-            blockedDirections = listOf(Direction.Down,Direction.Up),
-            onSwiped = { direction ->
-                println("The card was swiped to $direction")
-            },
-            onSwipeCancel = {
-                println("The swiping was cancelled")
-            }
-        )){
-            personaFinderUIState.rawImage?.let {
-                val decodedString: ByteArray = Base64.decode(personaFinderUIState.rawImage, Base64.DEFAULT)
-                val decodedFace =
-                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier= Modifier
-                        .fillMaxSize()
+        Box{
+            for(face in personaFinderUIState.faces){
+                val state = rememberSwipeableCardState()
+                if (state.swipedDirection == null) {
+                    val decodedString: ByteArray = Base64.decode(face.rawImage, Base64.DEFAULT)
+                    val decodedFace =
+                        BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                    Box(modifier = Modifier
                         .align(alignment = Alignment.Center)
-                ) {
-                    Image(
-                        bitmap = decodedFace.asImageBitmap(),
-                        contentDescription = "some useful description",
-                        modifier = Modifier
-                            .height(decodedFace.height.dp)
-                            .width(decodedFace.width.dp)
-                    )
+                        .swipableCard(
+                            state = state,
+                            blockedDirections = listOf(Direction.Down, Direction.Up),
+                            onSwiped = { direction ->
+                                println("The card was swiped to $direction")
+                                personaFinderViewModel.faceCounter++
+                            },
+                            onSwipeCancel = {
+                                println("The swiping was cancelled")
+                            }
+                        )
+                    ) {
+                        Image(
+                            bitmap = decodedFace.asImageBitmap(),
+                            contentDescription = "some useful description",
+                            modifier = Modifier
+                                .height(decodedFace.height.dp)
+                                .width(decodedFace.width.dp)
+                        )
+                    }
                 }
             }
-
-
         }
+        Text(text = "${personaFinderViewModel.faceCounter}/${personaFinderViewModel.faceAmount}")
     }
+
 
 }

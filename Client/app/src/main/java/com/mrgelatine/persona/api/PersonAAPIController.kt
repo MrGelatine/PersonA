@@ -2,9 +2,9 @@ package com.mrgelatine.persona.api
 
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.mrgelatine.persona.ui.PersonAAPIViewModel
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
-import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
@@ -46,8 +46,8 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
 
 }
 
-class PersonAAPISimilarFaceController(val similarFacesUIViewModel: SimilarFacesViewModel): Callback<SimilarFacesResponse> {
-    fun sendFeatures(faceEmbedding: Map<String, Float>, rawEmbedding:List<Float>, amount: Int) {
+class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callback<SimilarFacesResponse> {
+    fun sendFeatures(faceBias: FaceInfo, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -56,7 +56,7 @@ class PersonAAPISimilarFaceController(val similarFacesUIViewModel: SimilarFacesV
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceEmbedding, rawEmbedding, amount))
+        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceBias.faceFeatures, faceBias.rawEmbedding, amount))
         call.enqueue(this)
     }
 
@@ -65,7 +65,7 @@ class PersonAAPISimilarFaceController(val similarFacesUIViewModel: SimilarFacesV
             val responseFields: SimilarFacesResponse = response.body()!!
             val similarFaces = responseFields.similarFaces
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
-            similarFacesUIViewModel.changeUI(SimilarFacesUI(similarFacesUI = responseFields.similarFaces))
+            viewModel.updateFaces(responseFields.similarFaces)
         } else {
             println(response.errorBody())
         }
@@ -98,7 +98,6 @@ class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewMod
         if (response.isSuccessful) {
             val responseFields: RandomFaceResponse = response.body()!!
             val randomFace = responseFields.radnomFace
-            faceInfoViewModel.updateUI(PersonAFinderUI(randomFace.rawImage,randomFace.faceFeatures, randomFace.rawEmbedding))
         } else {
             println(response.errorBody())
         }

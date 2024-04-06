@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mrgelatine.persona.R
+import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
@@ -122,7 +123,8 @@ fun FaceInfoScreen(
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
-                    personAFinderViewModel.updateUI(PersonAFinderUI(faceInfoUI.rawImage, featureToSearch.value, faceInfoUI.rawEmbedding))
+                    personAFinderViewModel.faceBias = FaceInfo(featureToSearch.value, faceInfoUI.rawEmbedding, faceInfoUI.rawImage)
+                    personAFinderViewModel.changeNewPersona()
                     navigateToPersonAFormation()
                 },
                 enabled = faceInfoUI.formationButtonEnabled,

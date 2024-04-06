@@ -29,9 +29,9 @@ data class RandomFaceResponse(
     @SerializedName("random_face") val radnomFace: FaceInfo
 )
 data class FaceInfo(
-        @SerializedName("face_features") val faceFeatures: Map<String, Float>,
-        @SerializedName("raw_embedding") val rawEmbedding: List<Float>,
-        @SerializedName("raw_image") val rawImage: String
+    @SerializedName("face_features") val faceFeatures: Map<String, Float> = mapOf(),
+    @SerializedName("raw_embedding") val rawEmbedding: List<Float> = listOf(),
+    @SerializedName("raw_image") val rawImage: String = ""
 )
 interface PersonAAPI {
     @POST("faceInfo/")
@@ -43,7 +43,7 @@ interface PersonAAPI {
     @GET("randomFace/")
     fun getRandomFace(): Call<RandomFaceResponse>
     companion object {
-        const val BASE_URL = "https://3468-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://1e9a-213-138-90-130.ngrok-free.app"
     }
 
 }

@@ -2,6 +2,6 @@ package com.mrgelatine.persona.ui
 
 import com.mrgelatine.persona.api.FaceInfo
 
-interface SimilarFaceViewModel {
+interface PersonAAPIViewModel {
     fun updateFaces(faces: List<FaceInfo>)
 }
