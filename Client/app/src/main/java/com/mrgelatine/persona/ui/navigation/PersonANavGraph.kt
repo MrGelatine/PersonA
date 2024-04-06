@@ -19,6 +19,9 @@ import com.mrgelatine.persona.ui.faceInfo.FaceInfoScreen
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.imagePicker.ImagePickerDestination
 import com.mrgelatine.persona.ui.imagePicker.ImagePickerScreen
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderDestination
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderScreen
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesDestination
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesScreen
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
@@ -35,6 +38,7 @@ fun PersonANavGraph(
     val imageUri = remember{ mutableStateOf(Uri.EMPTY) }
     val faceInfoViewModel: FaceInfoViewModel = viewModel()
     val similarFacesViewModel: SimilarFacesViewModel = viewModel()
+    val personAFinderViewModel: PersonaFinderViewModel = viewModel()
     val amount = remember { mutableStateOf(0) }
     NavHost(
         navController = navController,
@@ -45,8 +49,10 @@ fun PersonANavGraph(
             Log.d("image_picker_start", "")
             ImagePickerScreen(
                     navigateToImageInfo = {navController.navigate(FaceInfoDestination.route)},
+                    navigateToPersonaFinder = {navController.navigate(PersonaFinderDestination.route)},
                     activity = activity,
-                    faceInfoViewModel= faceInfoViewModel
+                    faceInfoViewModel= faceInfoViewModel,
+                    personAFinderViewModel = personAFinderViewModel
             )
         }
         composable(route = FaceInfoDestination.route){
@@ -54,17 +60,24 @@ fun PersonANavGraph(
             FaceInfoScreen(
                     navigateToImagePicker = {navController.popBackStack()},
                     navigateToFaces = {navController.navigate(SimilarFacesDestination.route)},
+                    navigateToPersonAFormation = {navController.navigate(PersonaFinderDestination.route)},
                     faceInfoViewModel= faceInfoViewModel,
-                    similarFacesViewModel = similarFacesViewModel
+                    similarFacesViewModel = similarFacesViewModel,
+                    personAFinderViewModel = personAFinderViewModel
             )
         }
         composable(route = SimilarFacesDestination.route){
-
             SimilarFacesScreen(
                     navigateBack= {navController.popBackStack()},
                     similarFacesViewModel = similarFacesViewModel,
                     faceInfoViewModel= faceInfoViewModel,
                     navigateToFaceInfo = {navController.popBackStack()}
+            )
+        }
+        composable(route = PersonaFinderDestination.route){
+            PersonaFinderScreen(
+                    personaFinderViewModel = personAFinderViewModel,
+                    navigateBackToImagePicker = {navController.popBackStack()}
             )
         }
     }

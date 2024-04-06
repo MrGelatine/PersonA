@@ -13,6 +13,7 @@ data class FaceInfoRequest(
 data class FaceInfoResponse(
     @SerializedName("face_features") val faceFeatures: Map<String,Float>,
     @SerializedName("raw_embedding") val rawEmbedding: List<Float>,
+    @SerializedName("raw_image") val rawImage: String
 )
 
 data class SimilarFacesRequest(
@@ -42,7 +43,7 @@ interface PersonAAPI {
     @GET("randomFace/")
     fun getRandomFace(): Call<RandomFaceResponse>
     companion object {
-        const val BASE_URL = "https://0a90-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://3468-213-138-90-130.ngrok-free.app"
     }
 
 }

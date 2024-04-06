@@ -34,6 +34,7 @@ class FaceInfoViewModel: ViewModel() {
             faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
             val byteArray = byteArrayOutputStream.toByteArray()
             val encoded: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+            faceInfoUI.value.rawImage = encoded
             personaAPIController.sendFace(encoded)
         }
 

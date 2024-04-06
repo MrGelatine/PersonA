@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
+import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
@@ -32,7 +33,7 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceFeatures, mapOf(), responseFields.rawEmbedding, true))
+            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceFeatures, mapOf(), responseFields.rawEmbedding, true, true, responseFields.rawImage))
         } else {
             println(response.errorBody())
         }
@@ -97,7 +98,7 @@ class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewMod
         if (response.isSuccessful) {
             val responseFields: RandomFaceResponse = response.body()!!
             val randomFace = responseFields.radnomFace
-            print(randomFace.faceFeatures)
+            faceInfoViewModel.updateUI(PersonAFinderUI(randomFace.rawImage,randomFace.faceFeatures, randomFace.rawEmbedding))
         } else {
             println(response.errorBody())
         }

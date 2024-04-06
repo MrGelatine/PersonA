@@ -5,6 +5,8 @@ import android.graphics.ImageDecoder.ImageInfo
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -14,6 +16,7 @@ import com.mrgelatine.persona.R
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 
 object ImagePickerDestination: NavigationDestination{
     override val route: String = "image_picker"
@@ -23,7 +26,9 @@ object ImagePickerDestination: NavigationDestination{
 @Composable
 fun ImagePickerScreen(
     navigateToImageInfo: () -> Unit,
+    navigateToPersonaFinder: () -> Unit,
     faceInfoViewModel: FaceInfoViewModel,
+    personAFinderViewModel: PersonaFinderViewModel,
     activity: Activity
 ){
     val imagePickerDialog = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(),
@@ -35,7 +40,17 @@ fun ImagePickerScreen(
                 navigateToImageInfo()
             }
     })
-    Button(onClick = {imagePickerDialog.launch("image/*")}) {
-        
+    Column {
+        Button(onClick = {imagePickerDialog.launch("image/*")}) {
+
+        }
+        Button(onClick = {
+            personAFinderViewModel.changeNewPersona()
+            navigateToPersonaFinder()
+        }
+        ) {
+
+        }
     }
+
 }

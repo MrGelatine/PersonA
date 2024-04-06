@@ -50,6 +50,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
+import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
+import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
 import kotlinx.coroutines.launch
@@ -63,9 +65,11 @@ object FaceInfoDestination: NavigationDestination{
 @Composable
 fun FaceInfoScreen(
     navigateToImagePicker: () -> Unit,
+    navigateToPersonAFormation: () -> Unit,
     navigateToFaces: () -> Unit,
     faceInfoViewModel: FaceInfoViewModel,
-    similarFacesViewModel: SimilarFacesViewModel
+    similarFacesViewModel: SimilarFacesViewModel,
+    personAFinderViewModel: PersonaFinderViewModel
 
 ){
     val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
@@ -115,18 +119,34 @@ fun FaceInfoScreen(
                 FeatureList(faceInfoUI, featureToSearch)
             }
         }
-        Row(modifier = Modifier.weight(0.5f)) {
+        Row(modifier = Modifier.weight(0.25f)) {
+            Button(
+                onClick = {
+                    personAFinderViewModel.updateUI(PersonAFinderUI(faceInfoUI.rawImage, featureToSearch.value, faceInfoUI.rawEmbedding))
+                    navigateToPersonAFormation()
+                },
+                enabled = faceInfoUI.formationButtonEnabled,
+                modifier = Modifier
+                    .height(60.dp)
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.Bottom)
+            ) {
+                Text(text = "Start PersonA formation")
+            }
+
+        }
+        Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
                     similarFacesViewModel.changeUI(SimilarFacesUI())
                     similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,faceInfoUI.rawEmbedding, 10)
                     navigateToFaces()
-                          },
+                },
                 enabled = faceInfoUI.infoButtonEnabled,
                 modifier = Modifier
-                        .height(60.dp)
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.Bottom)
+                    .height(60.dp)
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.Bottom)
             ) {
                 Text(text = "Load familiars")
             }

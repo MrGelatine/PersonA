@@ -4,4 +4,5 @@
     <string name="image_picker_title">Image Picker</string>
     <string name="similar_faces_title">Similar Faces</string>
     <string name="face_photo_description">Photo Description</string>
+    <string name="persona_finder_title">PersonA Finder Title</string>
 </resources>

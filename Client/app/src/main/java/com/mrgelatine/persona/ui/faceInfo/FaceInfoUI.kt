@@ -8,5 +8,6 @@ data class FaceInfoUI(
     var selectedFeatureList: Map<String, Float> = mapOf(),
     var rawEmbedding: List<Float> = listOf(),
     var infoButtonEnabled: Boolean = false,
+    var formationButtonEnabled: Boolean = false,
     var rawImage: String = ""
 )
