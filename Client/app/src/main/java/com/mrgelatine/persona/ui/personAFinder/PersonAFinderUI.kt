@@ -1,7 +1,7 @@
 package com.mrgelatine.persona.ui.personAFinder
 
+import com.mrgelatine.persona.api.FaceInfo
+
 data class PersonAFinderUI(
-    val rawImage: String? = null,
-    val features: Map<String, Float>? = null,
-    val rawEmbedding: List<Float>? = null
+    val faces: List<FaceInfo>,
 )

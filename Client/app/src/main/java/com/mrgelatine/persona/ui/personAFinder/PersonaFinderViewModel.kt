@@ -2,14 +2,15 @@ package com.mrgelatine.persona.ui.personAFinder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.api.PersonAAPIRandomFaceController
 import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
-import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
+import com.mrgelatine.persona.ui.SimilarFaceViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class PersonaFinderViewModel : ViewModel(){
+class PersonaFinderViewModel : ViewModel(), SimilarFaceViewModel {
     var personaFinderUI: MutableStateFlow<PersonAFinderUI> = MutableStateFlow(PersonAFinderUI())
     fun changeNewPersona(){
         viewModelScope.launch(Dispatchers.IO) {
@@ -18,9 +19,10 @@ class PersonaFinderViewModel : ViewModel(){
             this@PersonaFinderViewModel
         }
     }
-    fun updateUI(value: PersonAFinderUI){
+    override fun updateFaces(faces: List<FaceInfo>){
         viewModelScope.launch {
-            personaFinderUI.emit(value)
+            personaFinderUI.emit(PersonAFinderUI(faces))
         }
     }
+
 }
