@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
+import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.PersonAAPIViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,14 +16,14 @@ class SimilarFacesViewModel: ViewModel(), PersonAAPIViewModel {
         val vm = this
         viewModelScope.launch(Dispatchers.IO) {
             val personaAPIController = PersonAAPISimilarFaceController(vm)
-            personaAPIController.sendFeatures(FaceInfo(features, rawEmbedding), amount)
+            personaAPIController.sendFeatures(FaceData(features,rawEmbedding, null), amount)
         }
     }
     fun changeUI(value:SimilarFacesUI){
 
     }
 
-    override fun updateFaces(faces: List<FaceInfo>) {
+    override fun updateFaces(faces: List<FaceData>) {
         viewModelScope.launch {
             similarFacesUI.emit(SimilarFacesUI(faces))
         }

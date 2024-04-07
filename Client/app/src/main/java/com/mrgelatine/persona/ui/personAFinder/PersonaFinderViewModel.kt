@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
+import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.PersonAAPIViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class PersonaFinderViewModel : ViewModel(), PersonAAPIViewModel {
     var personaFinderUI: MutableStateFlow<PersonAFinderUI> = MutableStateFlow(PersonAFinderUI())
-    var faceBias: FaceInfo = FaceInfo()
+    lateinit var faceBias: FaceData
     var faceAmount: Int = 5
     var faceCounter: Int = 1
     fun changeNewPersona(){
@@ -21,7 +22,7 @@ class PersonaFinderViewModel : ViewModel(), PersonAAPIViewModel {
             this@PersonaFinderViewModel
         }
     }
-    override fun updateFaces(faces: List<FaceInfo>){
+    override fun updateFaces(faces: List<FaceData>){
         viewModelScope.launch {
             personaFinderUI.emit(PersonAFinderUI(faces))
         }

@@ -42,9 +42,6 @@ fun PersonaFinderScreen(
             for(face in personaFinderUIState.faces){
                 val state = rememberSwipeableCardState()
                 if (state.swipedDirection == null) {
-                    val decodedString: ByteArray = Base64.decode(face.rawImage, Base64.DEFAULT)
-                    val decodedFace =
-                        BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
                     Box(modifier = Modifier
                         .align(alignment = Alignment.Center)
                         .swipableCard(
@@ -60,11 +57,11 @@ fun PersonaFinderScreen(
                         )
                     ) {
                         Image(
-                            bitmap = decodedFace.asImageBitmap(),
+                            bitmap = face.image!!.asImageBitmap(),
                             contentDescription = "some useful description",
                             modifier = Modifier
-                                .height(decodedFace.height.dp)
-                                .width(decodedFace.width.dp)
+                                .height(face.image!!.height.dp)
+                                .width(face.image!!.width.dp)
                         )
                     }
                 }
@@ -72,6 +69,4 @@ fun PersonaFinderScreen(
         }
         Text(text = "${personaFinderViewModel.faceCounter}/${personaFinderViewModel.faceAmount}")
     }
-
-
 }

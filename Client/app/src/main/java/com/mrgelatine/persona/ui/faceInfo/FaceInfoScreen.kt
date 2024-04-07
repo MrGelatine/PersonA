@@ -50,6 +50,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.api.FaceInfo
+import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
@@ -76,32 +77,17 @@ fun FaceInfoScreen(
     val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
-        if(faceInfoUI.imageUri != Uri.EMPTY){
-            AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                            .data(faceInfoUI.imageUri)
-                            .crossfade(true)
-                            .build(),
-                    contentDescription = stringResource(R.string.face_photo_description),
-                    modifier = Modifier
-                            .height(200.dp)
-                            .width(200.dp)
-                            .align(alignment = Alignment.CenterHorizontally)
-            )
-        }else{
-            val decodedString: ByteArray = Base64.decode(faceInfoUI.rawImage, Base64.DEFAULT)
-            val decodedFace =
-                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+        faceInfoUI.faceData?.image?.let {
             Image(
-                    bitmap = decodedFace.asImageBitmap(),
-                    contentDescription = "some useful description",
-                    modifier = Modifier
-                            .height(200.dp)
-                            .width(200.dp)
-                            .align(alignment = Alignment.CenterHorizontally)
+                bitmap = it.asImageBitmap(),
+                contentDescription = "some useful description",
+                modifier = Modifier
+                    .height(200.dp)
+                    .width(200.dp)
+                    .align(alignment = Alignment.CenterHorizontally)
             )
         }
-        if(faceInfoUI.featureList.isEmpty()) {
+        if(faceInfoUI.faceData?.featureList == null) {
             Row(modifier= Modifier
                     .align(alignment = Alignment.CenterHorizontally)
                     .weight(1f)) {
@@ -123,7 +109,8 @@ fun FaceInfoScreen(
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
-                    personAFinderViewModel.faceBias = FaceInfo(featureToSearch.value, faceInfoUI.rawEmbedding, faceInfoUI.rawImage)
+                    personAFinderViewModel.faceBias = FaceData(featureToSearch.value,
+                        faceInfoUI.faceData?.rawEmbedding, faceInfoUI.faceData?.image)
                     personAFinderViewModel.changeNewPersona()
                     navigateToPersonAFormation()
                 },
@@ -141,7 +128,8 @@ fun FaceInfoScreen(
             Button(
                 onClick = {
                     similarFacesViewModel.changeUI(SimilarFacesUI())
-                    similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,faceInfoUI.rawEmbedding, 10)
+                    similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,
+                        faceInfoUI.faceData?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
                 enabled = faceInfoUI.infoButtonEnabled,
@@ -165,41 +153,41 @@ fun FeatureList(
         featureToSearch: MutableState<MutableMap<String, Float>>
 ){
     var longTapState by remember{ mutableStateOf(false) }
-    for (elem in faceInfoUI.featureList) {
+    faceInfoUI.faceData?.featureList?.forEach {
         Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 10.dp)
-                .height(50.dp)
+            .fillMaxWidth()
+            .padding(bottom = 10.dp)
+            .height(50.dp)
         ) {
             if(longTapState){
                 var buttonState by remember{ mutableStateOf(false) }
                 if(buttonState){
                     Button(
-                            onClick = {
-                                buttonState = !buttonState
-                            },
-                            modifier = Modifier
-                                    .padding(start = 10.dp)
-                                    .align(alignment = Alignment.CenterVertically)
-                                    .height(25.dp)
-                                    .width(25.dp),
-                            shape = CircleShape
+                        onClick = {
+                            buttonState = !buttonState
+                        },
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .align(alignment = Alignment.CenterVertically)
+                            .height(25.dp)
+                            .width(25.dp),
+                        shape = CircleShape
 
                     ) {
 
                     }
                 }else{
                     OutlinedButton(
-                            onClick = {
-                                featureToSearch.value[elem.key] = elem.value
-                                buttonState = !buttonState
-                            },
-                            modifier = Modifier
-                                    .padding(start = 10.dp)
-                                    .align(alignment = Alignment.CenterVertically)
-                                    .height(25.dp)
-                                    .width(25.dp),
-                            shape = CircleShape
+                        onClick = {
+                            featureToSearch.value[it.key] = it.value
+                            buttonState = !buttonState
+                        },
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .align(alignment = Alignment.CenterVertically)
+                            .height(25.dp)
+                            .width(25.dp),
+                        shape = CircleShape
 
                     ) {
 
@@ -211,26 +199,27 @@ fun FeatureList(
             }
 
             Card(
-                    elevation = CardDefaults.cardElevation(
-                            defaultElevation = 10.dp
-                    ),
-                    modifier = Modifier
-                            .padding(start = 10.dp, end = 10.dp)
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .combinedClickable(
-                                    onClick = {},
-                                    onLongClick = {
-                                        longTapState = !longTapState
-                                    }
-                            )
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 10.dp
+                ),
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            longTapState = !longTapState
+                        }
+                    )
             ) {
                 Text(
-                        text = elem.key + elem.value,
-                        textAlign = TextAlign.Center
+                    text = it.key + it.value,
+                    textAlign = TextAlign.Center
                 )
             }
         }
     }
+
 }
 

@@ -1,7 +1,11 @@
 package com.mrgelatine.persona.api
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.PersonAAPIViewModel
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
@@ -13,10 +17,11 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
 
 class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
     Callback<FaceInfoResponse> {
-    fun sendFace(faceBase64: String) {
+    fun sendFace() {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -25,6 +30,10 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        faceInfoViewModel.faceInfoUI.value.faceData?.image?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        val faceBase64: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
         val call: Call<FaceInfoResponse> = personAAPI.loadFace(FaceInfoRequest(faceBase64))
 
         call.enqueue(this)
@@ -33,7 +42,11 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            faceInfoViewModel.updateUI(FaceInfoUI(faceInfoViewModel.faceInfoUI.value.imageUri, responseFields.faceFeatures, mapOf(), responseFields.rawEmbedding, true, true, responseFields.rawImage))
+            faceInfoViewModel.updateUI(
+                FaceInfoUI(FaceData(responseFields.faceFeatures,responseFields.rawEmbedding,
+                    faceInfoViewModel.faceInfoUI.value.faceData?.image
+                ), mapOf(), true, true)
+            )
         } else {
             println(response.errorBody())
         }
@@ -47,7 +60,7 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
 }
 
 class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callback<SimilarFacesResponse> {
-    fun sendFeatures(faceBias: FaceInfo, amount: Int) {
+    fun sendFeatures(faceBias: FaceData, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -56,7 +69,7 @@ class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callb
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceBias.faceFeatures, faceBias.rawEmbedding, amount))
+        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceBias.featureList!!, faceBias.rawEmbedding!!, amount))
         call.enqueue(this)
     }
 
@@ -64,8 +77,16 @@ class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callb
         if (response.isSuccessful) {
             val responseFields: SimilarFacesResponse = response.body()!!
             val similarFaces = responseFields.similarFaces
+            val similarfacesData: MutableList<FaceData> = mutableListOf()
+            for(face in similarFaces){
+                val decodedString: ByteArray = Base64.decode(face.rawImage, Base64.DEFAULT)
+                val decodedFace =
+                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace))
+            }
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
-            viewModel.updateFaces(responseFields.similarFaces)
+
+            viewModel.updateFaces(similarfacesData.toList())
         } else {
             println(response.errorBody())
         }

@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.api.FaceInfo
+import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
@@ -61,18 +62,17 @@ fun SimilarFacesScreen(
         innerPadding ->
         LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.padding(innerPadding)) {
             items(similarFacesUI.value.similarFacesUI) { similarFace ->
-                val decodedString: ByteArray = Base64.decode(similarFace.rawImage, Base64.DEFAULT)
-                val decodedFace =
-                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                Image(
-                    bitmap = decodedFace.asImageBitmap(),
-                    contentDescription = "some useful description",
+                similarFace.image?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = "some useful description",
                         modifier = Modifier.clickable {
-                            faceInfoViewModel.updateUI(FaceInfoUI(featureList = similarFace.faceFeatures,
-                                    rawEmbedding = similarFace.rawEmbedding, rawImage = similarFace.rawImage, infoButtonEnabled = true))
+                            faceInfoViewModel.updateUI(FaceInfoUI(
+                                FaceData(similarFace.featureList, similarFace.rawEmbedding, similarFace.image), null, infoButtonEnabled = true))
                             navigateToFaceInfo()
                         }
-                )
+                    )
+                }
             }
 
         }
