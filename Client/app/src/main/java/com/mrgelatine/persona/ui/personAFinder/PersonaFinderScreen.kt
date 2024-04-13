@@ -39,8 +39,9 @@ fun PersonaFinderScreen(
     val personaFinderUIState by personaFinderViewModel.personaFinderUI.collectAsState()
     Column {
         Box{
-            for(face in personaFinderUIState.faces){
-                val state = rememberSwipeableCardState()
+            for(faceId in 0..personaFinderUIState.faces.size-1){
+                val face = personaFinderUIState.faces[faceId]
+                val state = personaFinderUIState.faceCardState[faceId]
                 if (state.swipedDirection == null) {
                     Box(modifier = Modifier
                         .align(alignment = Alignment.Center)
@@ -48,8 +49,7 @@ fun PersonaFinderScreen(
                             state = state,
                             blockedDirections = listOf(Direction.Down, Direction.Up),
                             onSwiped = { direction ->
-                                println("The card was swiped to $direction")
-                                personaFinderViewModel.faceCounter++
+                                personaFinderViewModel.addToBias(face, direction)
                             },
                             onSwipeCancel = {
                                 println("The swiping was cancelled")
@@ -67,6 +67,6 @@ fun PersonaFinderScreen(
                 }
             }
         }
-        Text(text = "${personaFinderViewModel.faceCounter}/${personaFinderViewModel.faceAmount}")
+        Text(text = "${personaFinderViewModel.faceCounter+1}/${personaFinderViewModel.faceAmount}")
     }
 }

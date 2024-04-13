@@ -40,7 +40,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,6 +76,12 @@ fun FaceInfoScreen(
     personAFinderViewModel: PersonaFinderViewModel
 
 ){
+    val screenWidth = with(LocalDensity.current) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+    val screenHeight = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
     val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
@@ -111,6 +119,7 @@ fun FaceInfoScreen(
                 onClick = {
                     personAFinderViewModel.faceBias = FaceData(featureToSearch.value,
                         faceInfoUI.faceData?.rawEmbedding, faceInfoUI.faceData?.image)
+                    personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
                     personAFinderViewModel.changeNewPersona()
                     navigateToPersonAFormation()
                 },
