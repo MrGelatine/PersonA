@@ -12,6 +12,11 @@ import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,7 +64,7 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
 
 }
 
-class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callback<SimilarFacesResponse> {
+class PersonAAPISimilarFaceController(var facesDataFlow: MutableStateFlow<List<FaceData>?>, val scope: CoroutineScope): Callback<SimilarFacesResponse> {
     fun sendFeatures(faceBias: FaceData, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
@@ -85,8 +90,9 @@ class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callb
                 similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace))
             }
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
-
-            viewModel.updateFaces(similarfacesData.toList())
+            scope.launch {
+                facesDataFlow.emit(similarfacesData.toList())
+            }
         } else {
             println(response.errorBody())
         }
@@ -99,9 +105,9 @@ class PersonAAPISimilarFaceController(val viewModel: PersonAAPIViewModel): Callb
 
 }
 
-class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewModel) :
+class PersonAAPIRandomFacesController(var facesDataFlow: MutableStateFlow<List<FaceData>?>, val scope: CoroutineScope) :
     Callback<RandomFaceResponse> {
-    fun getRandomFace() {
+    fun getRandomFaces(amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -110,7 +116,7 @@ class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewMod
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<RandomFaceResponse> = personAAPI.getRandomFace()
+        val call: Call<RandomFaceResponse> = personAAPI.getRandomFace(amount)
 
         call.enqueue(this)
     }
@@ -118,7 +124,16 @@ class PersonAAPIRandomFaceController(var faceInfoViewModel: PersonaFinderViewMod
     override fun onResponse(call: Call<RandomFaceResponse>, response: Response<RandomFaceResponse>) {
         if (response.isSuccessful) {
             val responseFields: RandomFaceResponse = response.body()!!
-            val randomFace = responseFields.radnomFace
+            val decodedFaces: MutableList<FaceData> = mutableListOf()
+            responseFields.randomFaces.forEach{
+                val decodedString: ByteArray = Base64.decode(it.rawImage, Base64.DEFAULT)
+                val decodedFace =
+                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                decodedFaces.add(FaceData(it.faceFeatures, it.rawEmbedding, decodedFace))
+            }
+            this.scope.launch(Dispatchers.Main) {
+                this@PersonAAPIRandomFacesController.facesDataFlow.emit(decodedFaces)
+            }
         } else {
             println(response.errorBody())
         }

@@ -5,6 +5,6 @@ import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.data.FaceData
 
 data class PersonAFinderUI(
-    val faces: List<FaceData> = listOf(),
-    val faceCardState: List<SwipeableCardState> = listOf()
+    val faces: List<Pair<FaceData, SwipeableCardState>> = listOf(),
+    val isDetailed: Boolean = false
 )

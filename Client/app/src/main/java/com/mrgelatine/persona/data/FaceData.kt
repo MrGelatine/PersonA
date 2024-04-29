@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 
 data class FaceData(
-    var featureList: Map<String, Float>? = null,
-    var rawEmbedding: List<Float>? = null,
+    var featureList: Map<String, Float>? = mapOf(),
+    var rawEmbedding: List<Float>? = listOf(),
     var image: Bitmap? = null
 )

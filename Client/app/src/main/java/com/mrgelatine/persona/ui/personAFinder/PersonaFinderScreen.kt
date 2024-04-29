@@ -36,37 +36,57 @@ fun PersonaFinderScreen(
     navigateBackToImagePicker: () -> Unit,
     personaFinderViewModel: PersonaFinderViewModel
 ){
-    val personaFinderUIState by personaFinderViewModel.personaFinderUI.collectAsState()
+    val facesForChoosing by personaFinderViewModel.faceForChoosing.collectAsState()
+    val facesSwipeCards by personaFinderViewModel.faceCardSwipeStates.collectAsState()
+    val perPersonAFace by personaFinderViewModel.prePersonAFace.collectAsState()
     Column {
-        Box{
-            for(faceId in 0..personaFinderUIState.faces.size-1){
-                val face = personaFinderUIState.faces[faceId]
-                val state = personaFinderUIState.faceCardState[faceId]
-                if (state.swipedDirection == null) {
-                    Box(modifier = Modifier
-                        .align(alignment = Alignment.Center)
-                        .swipableCard(
-                            state = state,
-                            blockedDirections = listOf(Direction.Down, Direction.Up),
-                            onSwiped = { direction ->
-                                personaFinderViewModel.addToBias(face, direction)
-                            },
-                            onSwipeCancel = {
-                                println("The swiping was cancelled")
-                            }
-                        )
-                    ) {
+        Box {
+            if (perPersonAFace != null) {
+                Box(modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                ) {
+                    perPersonAFace!![0].image?.let {
                         Image(
-                            bitmap = face.image!!.asImageBitmap(),
+                            bitmap = it.asImageBitmap(),
                             contentDescription = "some useful description",
                             modifier = Modifier
-                                .height(face.image!!.height.dp)
-                                .width(face.image!!.width.dp)
+                                .height(perPersonAFace!![0].image!!.height.dp)
+                                .width(perPersonAFace!![0].image!!.width.dp)
                         )
                     }
                 }
+            } else {
+                facesForChoosing?.let {
+                    for (faceInd in 0..it.size - 1) {
+                        val face = it[faceInd]
+                        val state = facesSwipeCards[faceInd]
+                        if (state.swipedDirection == null) {
+                            Box(modifier = Modifier
+                                .align(alignment = Alignment.Center)
+                                .swipableCard(
+                                    state = state,
+                                    blockedDirections = listOf(Direction.Down, Direction.Up),
+                                    onSwiped = { direction ->
+                                        personaFinderViewModel.addToBias(face, direction)
+                                    },
+                                    onSwipeCancel = {
+                                        println("The swiping was cancelled")
+                                    }
+                                )
+                            ) {
+                                Image(
+                                    bitmap = face.image!!.asImageBitmap(),
+                                    contentDescription = "some useful description",
+                                    modifier = Modifier
+                                        .height(face.image!!.height.dp)
+                                        .width(face.image!!.width.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                Text(text = "${personaFinderViewModel.faceCounter + 1}/${personaFinderViewModel.faceAmount}")
             }
         }
-        Text(text = "${personaFinderViewModel.faceCounter+1}/${personaFinderViewModel.faceAmount}")
     }
 }

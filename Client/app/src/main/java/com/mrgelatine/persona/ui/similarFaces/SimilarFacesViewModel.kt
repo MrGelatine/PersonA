@@ -10,12 +10,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class SimilarFacesViewModel: ViewModel(), PersonAAPIViewModel {
-    val similarFacesUI: MutableStateFlow<SimilarFacesUI> = MutableStateFlow(SimilarFacesUI())
+class SimilarFacesViewModel: ViewModel() {
+    val similarFaces: MutableStateFlow<List<FaceData>?> = MutableStateFlow(listOf())
     fun sendFeatureForFaces(features: Map<String, Float>, rawEmbedding:List<Float>, amount: Int){
-        val vm = this
         viewModelScope.launch(Dispatchers.IO) {
-            val personaAPIController = PersonAAPISimilarFaceController(vm)
+            similarFaces.emit(listOf())
+            val personaAPIController = PersonAAPISimilarFaceController(similarFaces, this@SimilarFacesViewModel.viewModelScope)
             personaAPIController.sendFeatures(FaceData(features,rawEmbedding, null), amount)
         }
     }
@@ -23,9 +23,4 @@ class SimilarFacesViewModel: ViewModel(), PersonAAPIViewModel {
 
     }
 
-    override fun updateFaces(faces: List<FaceData>) {
-        viewModelScope.launch {
-            similarFacesUI.emit(SimilarFacesUI(faces))
-        }
-    }
 }

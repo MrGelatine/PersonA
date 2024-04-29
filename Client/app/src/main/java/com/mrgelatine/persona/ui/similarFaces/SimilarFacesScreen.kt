@@ -52,7 +52,7 @@ fun SimilarFacesScreen(
         faceInfoViewModel: FaceInfoViewModel,
         navigateToFaceInfo: () -> Unit,
 ) {
-    val similarFacesUI = similarFacesViewModel.similarFacesUI.collectAsState()
+    val similarFaces = similarFacesViewModel.similarFaces.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(title={},
@@ -61,7 +61,7 @@ fun SimilarFacesScreen(
     ){
         innerPadding ->
         LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.padding(innerPadding)) {
-            items(similarFacesUI.value.similarFacesUI) { similarFace ->
+            items(similarFaces.value!!) { similarFace ->
                 similarFace.image?.let {
                     Image(
                         bitmap = it.asImageBitmap(),

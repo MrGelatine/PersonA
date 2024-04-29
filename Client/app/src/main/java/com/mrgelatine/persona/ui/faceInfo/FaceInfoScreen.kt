@@ -120,7 +120,7 @@ fun FaceInfoScreen(
                     personAFinderViewModel.faceBias = FaceData(featureToSearch.value,
                         faceInfoUI.faceData?.rawEmbedding, faceInfoUI.faceData?.image)
                     personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
-                    personAFinderViewModel.changeNewPersona()
+                    //personAFinderViewModel.changeNewPersona()
                     navigateToPersonAFormation()
                 },
                 enabled = faceInfoUI.formationButtonEnabled,
@@ -136,7 +136,6 @@ fun FaceInfoScreen(
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
-                    similarFacesViewModel.changeUI(SimilarFacesUI())
                     similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,
                         faceInfoUI.faceData?.rawEmbedding!!, 10)
                     navigateToFaces()

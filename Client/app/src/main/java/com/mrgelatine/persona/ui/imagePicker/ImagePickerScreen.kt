@@ -14,12 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
+import kotlinx.coroutines.coroutineScope
 
 object ImagePickerDestination: NavigationDestination{
     override val route: String = "image_picker"
@@ -34,6 +38,12 @@ fun ImagePickerScreen(
     personAFinderViewModel: PersonaFinderViewModel,
     activity: Activity
 ){
+    val screenWidth = with(LocalDensity.current) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+    val screenHeight = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
     val imagePickerDialog = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(),
         onResult = {
             uri ->
@@ -58,7 +68,8 @@ fun ImagePickerScreen(
 
         }
         Button(onClick = {
-            personAFinderViewModel.changeNewPersona()
+            personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
+            personAFinderViewModel.generateInitFaces(10)
             navigateToPersonaFinder()
         }
         ) {
