@@ -1,14 +1,8 @@
 package com.mrgelatine.persona.ui.faceInfo
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.util.Base64
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,35 +24,23 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.mrgelatine.persona.R
-import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
-import com.mrgelatine.persona.ui.personAFinder.PersonAFinderUI
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
-import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
-import kotlinx.coroutines.launch
 
 
 object FaceInfoDestination: NavigationDestination{
@@ -82,10 +64,10 @@ fun FaceInfoScreen(
     val screenHeight = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
-    val faceInfoUI by faceInfoViewModel.faceInfoUI.collectAsState()
+    val faceDataFlow by faceInfoViewModel.faceDataFlow.collectAsState()
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
-        faceInfoUI.faceData?.image?.let {
+        faceDataFlow?.image?.let {
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = "some useful description",
@@ -95,52 +77,37 @@ fun FaceInfoScreen(
                     .align(alignment = Alignment.CenterHorizontally)
             )
         }
-        if(faceInfoUI.faceData?.featureList == null) {
+        if(faceDataFlow != null) {
+            Column(modifier = Modifier
+                .weight(1f)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+            ) {
+                FeatureList(faceDataFlow!!, featureToSearch)
+            }
+
+        } else {
             Row(modifier= Modifier
-                    .align(alignment = Alignment.CenterHorizontally)
-                    .weight(1f)) {
+                .align(alignment = Alignment.CenterHorizontally)
+                .weight(1f)) {
                 CircularProgressIndicator(
                     modifier = Modifier
-                            .size(100.dp)
-                            .align(alignment = Alignment.CenterVertically)
+                        .size(100.dp)
+                        .align(alignment = Alignment.CenterVertically)
                 )
-            }
-        } else {
-            Column(modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                FeatureList(faceInfoUI, featureToSearch)
             }
         }
         Row(modifier = Modifier.weight(0.25f)) {
-            Button(
-                onClick = {
-                    personAFinderViewModel.faceBias = FaceData(featureToSearch.value,
-                        faceInfoUI.faceData?.rawEmbedding, faceInfoUI.faceData?.image)
-                    personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
-                    //personAFinderViewModel.changeNewPersona()
-                    navigateToPersonAFormation()
-                },
-                enabled = faceInfoUI.formationButtonEnabled,
-                modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Bottom)
-            ) {
-                Text(text = "Start PersonA formation")
-            }
 
         }
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
                     similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,
-                        faceInfoUI.faceData?.rawEmbedding!!, 10)
+                        faceDataFlow?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
-                enabled = faceInfoUI.infoButtonEnabled,
+                enabled = !featureToSearch.value.isEmpty() || faceDataFlow?.rawEmbedding != null,
                 modifier = Modifier
                     .height(60.dp)
                     .fillMaxWidth()
@@ -148,20 +115,18 @@ fun FaceInfoScreen(
             ) {
                 Text(text = "Load familiars")
             }
-
         }
-
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FeatureList(
-        faceInfoUI: FaceInfoUI,
+        faceData: FaceData,
         featureToSearch: MutableState<MutableMap<String, Float>>
 ){
     var longTapState by remember{ mutableStateOf(false) }
-    faceInfoUI.faceData?.featureList?.forEach {
+    faceData.featureList?.forEach {
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp)

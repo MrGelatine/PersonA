@@ -1,9 +1,6 @@
 package com.mrgelatine.persona.ui.similarFaces
 
 import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
-import android.util.Base64
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -18,25 +15,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.mrgelatine.persona.R
-import com.mrgelatine.persona.api.FaceInfo
 import com.mrgelatine.persona.data.FaceData
-import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 
 object SimilarFacesDestination: NavigationDestination {
@@ -67,8 +52,9 @@ fun SimilarFacesScreen(
                         bitmap = it.asImageBitmap(),
                         contentDescription = "some useful description",
                         modifier = Modifier.clickable {
-                            faceInfoViewModel.updateUI(FaceInfoUI(
-                                FaceData(similarFace.featureList, similarFace.rawEmbedding, similarFace.image), null, infoButtonEnabled = true))
+                            faceInfoViewModel.updateFaceData(
+                                FaceData(similarFace.featureList, similarFace.rawEmbedding, similarFace.image)
+                            )
                             navigateToFaceInfo()
                         }
                     )

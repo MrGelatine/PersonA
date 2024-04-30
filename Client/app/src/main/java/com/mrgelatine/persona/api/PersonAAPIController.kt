@@ -6,15 +6,8 @@ import android.util.Base64
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.data.FaceData
-import com.mrgelatine.persona.ui.PersonAAPIViewModel
-import com.mrgelatine.persona.ui.faceInfo.FaceInfoUI
-import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
-import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
-import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
-import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -24,7 +17,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 
-class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
+class PersonAAPIFaceInfoController(var faceInfoFlow: MutableStateFlow<FaceData?>, val scope: CoroutineScope) :
     Callback<FaceInfoResponse> {
     fun sendFace() {
         val gson = GsonBuilder()
@@ -36,7 +29,7 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        faceInfoViewModel.faceInfoUI.value.faceData?.image?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+        faceInfoFlow.value?.image?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
         val faceBase64: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
         val call: Call<FaceInfoResponse> = personAAPI.loadFace(FaceInfoRequest(faceBase64))
@@ -47,11 +40,13 @@ class PersonAAPIFaceInfoController(var faceInfoViewModel: FaceInfoViewModel) :
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            faceInfoViewModel.updateUI(
-                FaceInfoUI(FaceData(responseFields.faceFeatures,responseFields.rawEmbedding,
-                    faceInfoViewModel.faceInfoUI.value.faceData?.image
-                ), mapOf(), true, true)
-            )
+            scope.launch {
+                faceInfoFlow.emit(FaceData(
+                    responseFields.faceFeatures,
+                    responseFields.rawEmbedding,
+                    faceInfoFlow.value?.image
+                ))
+            }
         } else {
             println(response.errorBody())
         }

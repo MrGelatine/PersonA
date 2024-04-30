@@ -4,11 +4,8 @@ import android.app.Activity
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -24,10 +21,7 @@ import com.mrgelatine.persona.ui.personAFinder.PersonaFinderScreen
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesDestination
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesScreen
-import com.mrgelatine.persona.ui.similarFaces.SimilarFacesUI
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun PersonANavGraph(

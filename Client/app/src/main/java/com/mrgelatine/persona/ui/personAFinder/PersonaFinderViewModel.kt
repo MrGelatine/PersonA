@@ -7,12 +7,11 @@ import com.alexstyl.swipeablecard.SwipeableCardState
 import com.mrgelatine.persona.api.PersonAAPIRandomFacesController
 import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
 import com.mrgelatine.persona.data.FaceData
-import com.mrgelatine.persona.ui.PersonAAPIViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class PersonaFinderViewModel : ViewModel(), PersonAAPIViewModel {
+class PersonaFinderViewModel : ViewModel(){
     var faceForChoosing: MutableStateFlow<List<FaceData>?> = MutableStateFlow(
         listOf()
     )
@@ -68,7 +67,4 @@ class PersonaFinderViewModel : ViewModel(), PersonAAPIViewModel {
             })
         }
     }
-    override fun updateFaces(faces: List<FaceData>){
-    }
-
 }
