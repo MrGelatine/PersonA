@@ -37,7 +37,7 @@ fun SimilarFacesScreen(
         faceInfoViewModel: FaceInfoViewModel,
         navigateToFaceInfo: () -> Unit,
 ) {
-    val similarFaces = similarFacesViewModel.similarFaces.collectAsState()
+    val similarFaces = similarFacesViewModel.similarFaces
     Scaffold(
         topBar = {
             TopAppBar(title={},

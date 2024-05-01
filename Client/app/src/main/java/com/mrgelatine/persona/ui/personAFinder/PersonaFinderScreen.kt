@@ -36,9 +36,9 @@ fun PersonaFinderScreen(
     navigateBackToImagePicker: () -> Unit,
     personaFinderViewModel: PersonaFinderViewModel
 ){
-    val facesForChoosing by personaFinderViewModel.faceForChoosing.collectAsState()
-    val facesSwipeCards by personaFinderViewModel.faceCardSwipeStates.collectAsState()
-    val perPersonAFace by personaFinderViewModel.prePersonAFace.collectAsState()
+    val facesForChoosing by personaFinderViewModel.faceForChoosing
+    val facesSwipeCards by personaFinderViewModel.faceCardSwipeStates
+    val perPersonAFace by personaFinderViewModel.prePersonAFace
     Column {
         Box {
             if (perPersonAFace != null) {

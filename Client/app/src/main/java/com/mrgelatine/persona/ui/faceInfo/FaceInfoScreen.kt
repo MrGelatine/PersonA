@@ -64,10 +64,10 @@ fun FaceInfoScreen(
     val screenHeight = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
-    val faceDataFlow by faceInfoViewModel.faceDataFlow.collectAsState()
+    val faceData by faceInfoViewModel.faceData
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
-        faceDataFlow?.image?.let {
+        faceData?.image?.let {
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = "some useful description",
@@ -77,15 +77,14 @@ fun FaceInfoScreen(
                     .align(alignment = Alignment.CenterHorizontally)
             )
         }
-        if(faceDataFlow != null) {
+        if(faceInfoViewModel.isDataReady()) {
             Column(modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
             ) {
-                FeatureList(faceDataFlow!!, featureToSearch)
+                FeatureList(faceData!!, featureToSearch)
             }
-
         } else {
             Row(modifier= Modifier
                 .align(alignment = Alignment.CenterHorizontally)
@@ -104,10 +103,10 @@ fun FaceInfoScreen(
             Button(
                 onClick = {
                     similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,
-                        faceDataFlow?.rawEmbedding!!, 10)
+                        faceData?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
-                enabled = !featureToSearch.value.isEmpty() || faceDataFlow?.rawEmbedding != null,
+                enabled = !featureToSearch.value.isEmpty() || faceData?.rawEmbedding != null,
                 modifier = Modifier
                     .height(60.dp)
                     .fillMaxWidth()

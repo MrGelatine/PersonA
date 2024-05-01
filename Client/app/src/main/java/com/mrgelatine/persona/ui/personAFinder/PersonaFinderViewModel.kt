@@ -1,5 +1,7 @@
 package com.mrgelatine.persona.ui.personAFinder
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexstyl.swipeablecard.Direction
@@ -12,13 +14,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class PersonaFinderViewModel : ViewModel(){
-    var faceForChoosing: MutableStateFlow<List<FaceData>?> = MutableStateFlow(
+    var faceForChoosing: MutableState<List<FaceData>?> = mutableStateOf(
         listOf()
     )
-    var prePersonAFace: MutableStateFlow<List<FaceData>?> = MutableStateFlow(
+    var prePersonAFace: MutableState<List<FaceData>?> = mutableStateOf(
         null
     )
-    var faceCardSwipeStates: MutableStateFlow<List<SwipeableCardState>> = MutableStateFlow(
+    var faceCardSwipeStates: MutableState<List<SwipeableCardState>> = mutableStateOf(
         listOf()
     )
     var choosedFaces: MutableList<FaceData> = mutableListOf()
@@ -49,22 +51,22 @@ class PersonaFinderViewModel : ViewModel(){
             loadPrePersonA()
         }
     }
-
     fun loadPrePersonA(){
-        val personAControlller = PersonAAPISimilarFaceController(this@PersonaFinderViewModel.prePersonAFace, viewModelScope)
+        val personAControlller = PersonAAPISimilarFaceController(this@PersonaFinderViewModel.prePersonAFace)
         personAControlller.sendFeatures(faceBias, 1)
     }
     fun generateInitFaces(amount: Int){
         faceCounter = 0
         viewModelScope.launch(Dispatchers.IO) {
-            prePersonAFace.emit(null)
-            faceForChoosing.emit(null)
-            val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing, viewModelScope)
+
+            prePersonAFace.value = null
+            faceForChoosing.value = null
+            val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing)
             this@PersonaFinderViewModel.faceAmount = amount
             personaAPIController.getRandomFaces(amount)
-            this@PersonaFinderViewModel.faceCardSwipeStates.emit(List(amount){
+            this@PersonaFinderViewModel.faceCardSwipeStates.value = List(amount){
                 SwipeableCardState(screenSize.first, screenSize.second)
-            })
+            }
         }
     }
 }

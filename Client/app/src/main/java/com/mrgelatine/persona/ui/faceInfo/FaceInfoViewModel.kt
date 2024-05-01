@@ -8,7 +8,9 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,10 +23,10 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
 class FaceInfoViewModel: ViewModel() {
-    var faceDataFlow: MutableStateFlow<FaceData?> = MutableStateFlow(null)
+    var faceData: MutableState<FaceData?> = mutableStateOf(null)
     fun sendFaceForFeatures(){
         viewModelScope.launch(Dispatchers.IO) {
-            val personaAPIController = PersonAAPIFaceInfoController(faceDataFlow, this@FaceInfoViewModel.viewModelScope)
+            val personaAPIController = PersonAAPIFaceInfoController(faceData)
             personaAPIController.sendFace()
         }
     }
@@ -39,13 +41,14 @@ class FaceInfoViewModel: ViewModel() {
             imageHeight = 256
         }
         faceBitmap = Bitmap.createScaledBitmap(faceBitmap, imageWidth, imageHeight, false)
-        viewModelScope.launch {
-            faceDataFlow.emit(FaceData(null,null,faceBitmap))
-        }
+        faceData.value = FaceData(null,null,faceBitmap)
+    }
+    fun isDataReady(): Boolean{
+        return faceData.value?.featureList != null && faceData.value?.rawEmbedding != null
     }
     fun updateFaceData(face: FaceData){
         viewModelScope.launch{
-            faceDataFlow.emit(face)
+            faceData.value = face
         }
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.data.FaceData
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 
-class PersonAAPIFaceInfoController(var faceInfoFlow: MutableStateFlow<FaceData?>, val scope: CoroutineScope) :
+class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>) :
     Callback<FaceInfoResponse> {
     fun sendFace() {
         val gson = GsonBuilder()
@@ -29,7 +30,7 @@ class PersonAAPIFaceInfoController(var faceInfoFlow: MutableStateFlow<FaceData?>
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        faceInfoFlow.value?.image?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+        faceInfo.value?.image?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
         val faceBase64: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
         val call: Call<FaceInfoResponse> = personAAPI.loadFace(FaceInfoRequest(faceBase64))
@@ -40,13 +41,11 @@ class PersonAAPIFaceInfoController(var faceInfoFlow: MutableStateFlow<FaceData?>
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            scope.launch {
-                faceInfoFlow.emit(FaceData(
-                    responseFields.faceFeatures,
-                    responseFields.rawEmbedding,
-                    faceInfoFlow.value?.image
-                ))
-            }
+            faceInfo.value = FaceData(
+                responseFields.faceFeatures,
+                responseFields.rawEmbedding,
+                faceInfo.value?.image
+            )
         } else {
             println(response.errorBody())
         }
@@ -59,7 +58,7 @@ class PersonAAPIFaceInfoController(var faceInfoFlow: MutableStateFlow<FaceData?>
 
 }
 
-class PersonAAPISimilarFaceController(var facesDataFlow: MutableStateFlow<List<FaceData>?>, val scope: CoroutineScope): Callback<SimilarFacesResponse> {
+class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>?>): Callback<SimilarFacesResponse> {
     fun sendFeatures(faceBias: FaceData, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
@@ -85,9 +84,7 @@ class PersonAAPISimilarFaceController(var facesDataFlow: MutableStateFlow<List<F
                 similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace))
             }
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
-            scope.launch {
-                facesDataFlow.emit(similarfacesData.toList())
-            }
+            facesData.value = similarfacesData.toList()
         } else {
             println(response.errorBody())
         }
@@ -100,7 +97,7 @@ class PersonAAPISimilarFaceController(var facesDataFlow: MutableStateFlow<List<F
 
 }
 
-class PersonAAPIRandomFacesController(var facesDataFlow: MutableStateFlow<List<FaceData>?>, val scope: CoroutineScope) :
+class PersonAAPIRandomFacesController(var facesData: MutableState<List<FaceData>?>) :
     Callback<RandomFaceResponse> {
     fun getRandomFaces(amount: Int) {
         val gson = GsonBuilder()
@@ -126,9 +123,7 @@ class PersonAAPIRandomFacesController(var facesDataFlow: MutableStateFlow<List<F
                     BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
                 decodedFaces.add(FaceData(it.faceFeatures, it.rawEmbedding, decodedFace))
             }
-            this.scope.launch(Dispatchers.Main) {
-                this@PersonAAPIRandomFacesController.facesDataFlow.emit(decodedFaces)
-            }
+            facesData.value = decodedFaces
         } else {
             println(response.errorBody())
         }
