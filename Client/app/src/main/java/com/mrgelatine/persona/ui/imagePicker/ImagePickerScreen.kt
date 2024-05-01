@@ -44,7 +44,6 @@ fun ImagePickerScreen(
     })
     Column {
         Button(onClick = {imagePickerDialog.launch("image/*")}) {
-
         }
         Button(onClick = {
             personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)

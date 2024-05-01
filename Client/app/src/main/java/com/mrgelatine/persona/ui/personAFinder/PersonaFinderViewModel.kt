@@ -25,15 +25,15 @@ class PersonaFinderViewModel : ViewModel(){
     )
     var choosedFaces: MutableList<FaceData> = mutableListOf()
     var faceBias: FaceData = FaceData()
-    var faceAmount: Int? = null
-    var faceCounter: Int = 0
+    var faceAmount: MutableState<Int?> = mutableStateOf(null)
+    var faceCounter: MutableState<Int> = mutableStateOf(0)
 
     lateinit var screenSize: Pair<Float,Float>
     fun addToBias(face: FaceData, direction: Direction){
         if(direction == Direction.Right){
             choosedFaces.add(face)
         }
-        if(++faceCounter == faceAmount){
+        if(++faceCounter.value == faceAmount.value){
             val newFeatureList: MutableMap<String, Float> = mutableMapOf()
             choosedFaces.forEach{
                 it.featureList!!.forEach {
@@ -56,13 +56,13 @@ class PersonaFinderViewModel : ViewModel(){
         personAControlller.sendFeatures(faceBias, 1)
     }
     fun generateInitFaces(amount: Int){
-        faceCounter = 0
+        choosedFaces.clear()
+        faceCounter.value = 0
         viewModelScope.launch(Dispatchers.IO) {
-
             prePersonAFace.value = null
             faceForChoosing.value = null
             val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing)
-            this@PersonaFinderViewModel.faceAmount = amount
+            this@PersonaFinderViewModel.faceAmount.value = amount
             personaAPIController.getRandomFaces(amount)
             this@PersonaFinderViewModel.faceCardSwipeStates.value = List(amount){
                 SwipeableCardState(screenSize.first, screenSize.second)

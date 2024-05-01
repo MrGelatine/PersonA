@@ -58,12 +58,6 @@ fun FaceInfoScreen(
     personAFinderViewModel: PersonaFinderViewModel
 
 ){
-    val screenWidth = with(LocalDensity.current) {
-        LocalConfiguration.current.screenWidthDp.dp.toPx()
-    }
-    val screenHeight = with(LocalDensity.current) {
-        LocalConfiguration.current.screenHeightDp.dp.toPx()
-    }
     val faceData by faceInfoViewModel.faceData
     val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
@@ -77,28 +71,11 @@ fun FaceInfoScreen(
                     .align(alignment = Alignment.CenterHorizontally)
             )
         }
-        if(faceInfoViewModel.isDataReady()) {
-            Column(modifier = Modifier
-                .weight(1f)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-            ) {
-                FeatureList(faceData!!, featureToSearch)
-            }
-        } else {
-            Row(modifier= Modifier
-                .align(alignment = Alignment.CenterHorizontally)
-                .weight(1f)) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(alignment = Alignment.CenterVertically)
-                )
-            }
-        }
-        Row(modifier = Modifier.weight(0.25f)) {
-
-        }
+        FaceFeaturePreviewed(
+            faceData = faceData!!,
+            featureToSearch = featureToSearch,
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally).weight(1f).padding(10.dp)
+        )
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
@@ -118,6 +95,29 @@ fun FaceInfoScreen(
     }
 }
 
+@Composable
+fun FaceFeaturePreviewed(
+    featureToSearch: MutableState<MutableMap<String, Float>>,
+    faceData: FaceData,
+    modifier: Modifier
+){
+    if(faceData.featureList != null && faceData.rawEmbedding != null) {
+        Column(modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+        ) {
+            FeatureList(faceData!!, featureToSearch)
+        }
+    } else {
+        Row(modifier = modifier){
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(100.dp)
+                    .align(alignment = Alignment.CenterVertically)
+            )
+        }
+    }
+}
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FeatureList(
@@ -165,7 +165,6 @@ fun FeatureList(
 
                     }
                 }
-
             }else{
                 featureToSearch.value = mutableMapOf()
             }
