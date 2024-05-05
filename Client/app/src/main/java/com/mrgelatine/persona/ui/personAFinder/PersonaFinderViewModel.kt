@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexstyl.swipeablecard.Direction
 import com.alexstyl.swipeablecard.SwipeableCardState
+import com.mrgelatine.persona.api.PersonAAPIFaceParametrizeController
 import com.mrgelatine.persona.api.PersonAAPIRandomFacesController
 import com.mrgelatine.persona.api.PersonAAPISimilarFaceController
 import com.mrgelatine.persona.data.FaceData
@@ -24,9 +25,10 @@ class PersonaFinderViewModel : ViewModel(){
         listOf()
     )
     var choosedFaces: MutableList<FaceData> = mutableListOf()
-    var faceBias: FaceData = FaceData()
+    var emdeddingBias: List<Float> = listOf()
     var faceAmount: MutableState<Int?> = mutableStateOf(null)
     var faceCounter: MutableState<Int> = mutableStateOf(0)
+    var embeddingsSize: Int = 0
 
     lateinit var screenSize: Pair<Float,Float>
     fun addToBias(face: FaceData, direction: Direction){
@@ -34,26 +36,23 @@ class PersonaFinderViewModel : ViewModel(){
             choosedFaces.add(face)
         }
         if(++faceCounter.value == faceAmount.value){
-            val newFeatureList: MutableMap<String, Float> = mutableMapOf()
+            val newEmbeddingList: MutableList<Float> = MutableList(embeddingsSize){
+                0.0f
+            }
             choosedFaces.forEach{
-                it.featureList!!.forEach {
-                    if (it.key in newFeatureList.keys){
-                        newFeatureList[it.key] = newFeatureList[it.key]!! + it.value
-                        newFeatureList[it.key] = newFeatureList[it.key]!! / 2.0f
-
-                    }else{
-                        newFeatureList[it.key] = it.value
-                    }
+                for(i in 0..<it.rawEmbedding!!.size){
+                    newEmbeddingList[i] += it.rawEmbedding!![i]
+                    newEmbeddingList[i] /= 2.0f
                 }
             }
-            faceBias.featureList = newFeatureList
+            emdeddingBias = newEmbeddingList
             choosedFaces.clear()
             loadPrePersonA()
         }
     }
     fun loadPrePersonA(){
         val personAControlller = PersonAAPISimilarFaceController(this@PersonaFinderViewModel.prePersonAFace)
-        personAControlller.sendFeatures(faceBias, 1)
+        personAControlller.sendEmbedding(emdeddingBias, 1)
     }
     fun generateInitFaces(amount: Int){
         choosedFaces.clear()

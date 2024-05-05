@@ -59,7 +59,7 @@ class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>) :
 }
 
 class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>?>): Callback<SimilarFacesResponse> {
-    fun sendFeatures(faceBias: FaceData, amount: Int) {
+    fun sendEmbedding(rawEmbedding: List<Float>, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -68,7 +68,7 @@ class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(faceBias.featureList!!, faceBias.rawEmbedding!!, amount))
+        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(rawEmbedding, amount))
         call.enqueue(this)
     }
 
@@ -91,6 +91,44 @@ class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>
     }
 
     override fun onFailure(call: Call<SimilarFacesResponse>, t: Throwable) {
+        Log.d("retrofit_post", "Error!")
+        t.printStackTrace()
+    }
+
+}
+
+class PersonAAPIFaceParametrizeController(var facesData: MutableState<List<FaceData>?>): Callback<FaceParametrizeResponse> {
+    fun sendFeatures(faceFeatures: Map<String,Float>, amount: Int) {
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(PersonAAPI.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
+        val call: Call<FaceParametrizeResponse> = personAAPI.findParametrizedFaces(FaceParametrizeRequest(faceFeatures, amount))
+        call.enqueue(this)
+    }
+
+    override fun onResponse(call: Call<FaceParametrizeResponse>, response: Response<FaceParametrizeResponse>) {
+        if (response.isSuccessful) {
+            val responseFields: FaceParametrizeResponse = response.body()!!
+            val parametrizeFaces = responseFields.parametrize_faces
+            val similarfacesData: MutableList<FaceData> = mutableListOf()
+            for(face in parametrizeFaces){
+                val decodedString: ByteArray = Base64.decode(face.rawImage, Base64.DEFAULT)
+                val decodedFace =
+                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace))
+            }
+            facesData.value = similarfacesData.toList()
+        } else {
+            println(response.errorBody())
+        }
+    }
+
+    override fun onFailure(call: Call<FaceParametrizeResponse>, t: Throwable) {
         Log.d("retrofit_post", "Error!")
         t.printStackTrace()
     }

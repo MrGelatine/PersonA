@@ -18,13 +18,21 @@ data class FaceInfoResponse(
 )
 
 data class SimilarFacesRequest(
-    @SerializedName("face_features") val faceEmbedding: Map<String, Float>,
     @SerializedName("raw_embedding") val rawEmbedding: List<Float>,
     @SerializedName("amount") val amount: Int
 )
 
 data class SimilarFacesResponse(
     @SerializedName("similar_faces") val similarFaces: List<FaceInfo>
+)
+
+data class FaceParametrizeRequest(
+    @SerializedName("face_features") val faceFeatures: Map<String,Float>,
+    @SerializedName("amount") val amount: Int
+)
+
+data class FaceParametrizeResponse(
+    @SerializedName("parametrize_faces") val parametrize_faces: List<FaceInfo>
 )
 data class RandomFaceResponse(
     @SerializedName("random_faces") val randomFaces: List<FaceInfo>
@@ -41,10 +49,13 @@ interface PersonAAPI {
     @POST("similarFaces/")
     fun findFaces(@Body faceEmbedding: SimilarFacesRequest): Call<SimilarFacesResponse>
 
+    @POST("faceParametrize/")
+    fun findParametrizedFaces(@Body faceFeatures: FaceParametrizeRequest): Call<FaceParametrizeResponse>
+
     @GET("randomFace/")
     fun getRandomFace(@Query("amount") amount: Int): Call<RandomFaceResponse>
     companion object {
-        const val BASE_URL = "https://0e26-213-138-90-130.ngrok-free.app"
+        const val BASE_URL = "https://de59-213-138-90-130.ngrok-free.app"
     }
 
 }

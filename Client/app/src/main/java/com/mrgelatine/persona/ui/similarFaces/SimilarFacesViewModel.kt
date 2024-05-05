@@ -12,11 +12,11 @@ import kotlinx.coroutines.launch
 
 class SimilarFacesViewModel: ViewModel() {
     val similarFaces: MutableState<List<FaceData>?> = mutableStateOf(listOf())
-    fun sendFeatureForFaces(features: Map<String, Float>, rawEmbedding:List<Float>, amount: Int){
+    fun sendFeatureForFaces(rawEmbedding:List<Float>, amount: Int){
         viewModelScope.launch(Dispatchers.IO) {
             similarFaces.value = listOf()
             val personaAPIController = PersonAAPISimilarFaceController(similarFaces)
-            personaAPIController.sendFeatures(FaceData(features,rawEmbedding, null), amount)
+            personaAPIController.sendEmbedding(rawEmbedding, amount)
         }
     }
 }
