@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -18,6 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -30,6 +34,8 @@ import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.data.FaceData
+import com.mrgelatine.persona.ui.faceInfo.FaceFeaturePreviewed
+import com.mrgelatine.persona.ui.faceInfo.FeatureList
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 
 object PersonaFinderDestination: NavigationDestination{
@@ -44,11 +50,16 @@ fun PersonaFinderScreen(
     val facesForChoosing = personaFinderViewModel.faceForChoosing
     val facesSwipeCards by personaFinderViewModel.faceCardSwipeStates
     val prePersonAFace by personaFinderViewModel.prePersonAFace
+
+    val featureSelection = personaFinderViewModel.featureSelection
+    val selectedFeature = personaFinderViewModel.personAFeatures
     Row {
         Box {
             if (prePersonAFace != null) {
                 prePersonAFace(
                     prePersonAFace = prePersonAFace,
+                    featureSelection = featureSelection,
+                    featureCollection = selectedFeature,
                     restartCallback = { personaFinderViewModel.generateInitFaces(10) }
                 )
             } else {
@@ -78,8 +89,12 @@ fun PersonaFinderScreen(
 @Composable
 fun prePersonAFace(
     prePersonAFace: List<FaceData>?,
+    featureSelection: MutableState<Boolean>,
+    featureCollection: MutableMap<String, Float>,
     restartCallback: () -> Unit
 ){
+    var selection by featureSelection
+    var selectedFeature = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
     Column {
         Row{
             prePersonAFace!![0].image?.let {
@@ -92,15 +107,32 @@ fun prePersonAFace(
                 )
             }
         }
-        Row{
-            Button(
-                onClick = restartCallback) {
-                Text(text = "No")
+        if(selection){
+            Column {
+                FaceFeaturePreviewed(faceData = prePersonAFace!![0], featureToSearch = selectedFeature, featureCollection= featureCollection, modifier = Modifier
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .weight(1f)
+                    .padding(10.dp) )
+                Button(onClick = {
+                    featureCollection.putAll(selectedFeature.value)
+                    restartCallback()
+                                 },
+                    modifier = Modifier.weight(1f)) {
+                    Text(text = "Continue formation")
+                }
             }
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "Yes")
+        }else{
+            Row{
+                Button(
+                    onClick = restartCallback) {
+                    Text(text = "No")
+                }
+                Button(onClick = { selection = !selection }) {
+                    Text(text = "Yes")
+                }
             }
         }
+
     }
 }
 @OptIn(ExperimentalSwipeableCardApi::class)

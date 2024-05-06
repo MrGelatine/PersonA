@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,7 +20,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,12 +77,15 @@ fun FaceInfoScreen(
         FaceFeaturePreviewed(
             faceData = faceData!!,
             featureToSearch = featureToSearch,
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally).weight(1f).padding(10.dp)
+            modifier = Modifier
+                .align(alignment = Alignment.CenterHorizontally)
+                .weight(1f)
+                .padding(10.dp)
         )
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
                 onClick = {
-                    similarFacesViewModel.sendFeatureForFaces(featureToSearch.value,
+                    similarFacesViewModel.sendFeatureForFaces(
                         faceData?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
@@ -99,6 +105,7 @@ fun FaceInfoScreen(
 fun FaceFeaturePreviewed(
     featureToSearch: MutableState<MutableMap<String, Float>>,
     faceData: FaceData,
+    featureCollection: MutableMap<String, Float>? = null,
     modifier: Modifier
 ){
     if(faceData.featureList != null && faceData.rawEmbedding != null) {
@@ -106,7 +113,7 @@ fun FaceFeaturePreviewed(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
         ) {
-            FeatureList(faceData!!, featureToSearch)
+            FeatureList(faceData, featureToSearch, featureCollection)
         }
     } else {
         Row(modifier = modifier){
@@ -118,62 +125,37 @@ fun FaceFeaturePreviewed(
         }
     }
 }
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FeatureList(
         faceData: FaceData,
-        featureToSearch: MutableState<MutableMap<String, Float>>
+        featureToSearch: MutableState<MutableMap<String, Float>>,
+        featureCollection: MutableMap<String, Float>?
 ){
     var longTapState by remember{ mutableStateOf(false) }
-    faceData.featureList?.forEach {
-        Row(modifier = Modifier
+    val filteredFeatures = if (featureCollection?.entries != null) faceData.featureList?.filter { !featureCollection.containsKey(it.key) } else faceData.featureList
+    filteredFeatures?.forEach {
+        Box(modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp)
             .height(50.dp)
         ) {
-            if(longTapState){
-                var buttonState by remember{ mutableStateOf(false) }
-                if(buttonState){
-                    Button(
-                        onClick = {
-                            buttonState = !buttonState
-                        },
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .align(alignment = Alignment.CenterVertically)
-                            .height(25.dp)
-                            .width(25.dp),
-                        shape = CircleShape
-
-                    ) {
-
-                    }
-                }else{
-                    OutlinedButton(
-                        onClick = {
-                            featureToSearch.value[it.key] = it.value
-                            buttonState = !buttonState
-                        },
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .align(alignment = Alignment.CenterVertically)
-                            .height(25.dp)
-                            .width(25.dp),
-                        shape = CircleShape
-
-                    ) {
-
-                    }
-                }
-            }else{
-                featureToSearch.value = mutableMapOf()
-            }
+            var buttonState by remember{ mutableStateOf(false) }
 
             Card(
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 10.dp
                 ),
+                onClick = {
+                    buttonState = !buttonState
+                    if(buttonState){
+                        featureToSearch.value[it.key] = it.value
+                    }else{
+                        featureToSearch.value.remove(it.key)
+                    }
+                },
                 modifier = Modifier
+                    .align(alignment = Alignment.CenterEnd)
                     .padding(start = 10.dp, end = 10.dp)
                     .fillMaxHeight()
                     .fillMaxWidth()
@@ -186,9 +168,14 @@ fun FeatureList(
             ) {
                 Text(
                     text = it.key + it.value,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.align(alignment = Alignment.End)
                 )
             }
+            if(buttonState){
+                Checkbox(checked = true, onCheckedChange = {})
+            }
+
         }
     }
 

@@ -25,10 +25,14 @@ class PersonaFinderViewModel : ViewModel(){
         listOf()
     )
     var choosedFaces: MutableList<FaceData> = mutableListOf()
-    var emdeddingBias: List<Float> = listOf()
-    var faceAmount: MutableState<Int?> = mutableStateOf(null)
-    var faceCounter: MutableState<Int> = mutableStateOf(0)
+
     var embeddingsSize: Int = 0
+    var faceCounter: MutableState<Int> = mutableStateOf(0)
+    var faceAmount: MutableState<Int?> = mutableStateOf(null)
+
+    var featureSelection:MutableState<Boolean> = mutableStateOf(false)
+    var personAFeatures: MutableMap<String, Float> = mutableMapOf()
+
 
     lateinit var screenSize: Pair<Float,Float>
     fun addToBias(face: FaceData, direction: Direction){
@@ -45,27 +49,41 @@ class PersonaFinderViewModel : ViewModel(){
                     newEmbeddingList[i] /= 2.0f
                 }
             }
-            emdeddingBias = newEmbeddingList
             choosedFaces.clear()
-            loadPrePersonA()
+            val personAControlller = PersonAAPISimilarFaceController(this@PersonaFinderViewModel.prePersonAFace)
+            personAControlller.sendEmbedding(newEmbeddingList, 1)
         }
     }
     fun loadPrePersonA(){
-        val personAControlller = PersonAAPISimilarFaceController(this@PersonaFinderViewModel.prePersonAFace)
-        personAControlller.sendEmbedding(emdeddingBias, 1)
+
     }
-    fun generateInitFaces(amount: Int){
+    fun restartViewModel(){
         choosedFaces.clear()
         faceCounter.value = 0
-        viewModelScope.launch(Dispatchers.IO) {
-            prePersonAFace.value = null
-            faceForChoosing.value = null
-            val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing)
-            this@PersonaFinderViewModel.faceAmount.value = amount
-            personaAPIController.getRandomFaces(amount)
+        prePersonAFace.value = null
+        faceForChoosing.value = null
+        featureSelection.value = false
+
+    }
+    fun generateInitFaces(amount: Int){
+        restartViewModel()
+        faceAmount.value = amount
+        if(personAFeatures.isEmpty()){
+            viewModelScope.launch(Dispatchers.IO) {
+                val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing)
+
+                personaAPIController.getRandomFaces(amount)
+                this@PersonaFinderViewModel.faceCardSwipeStates.value = List(amount){
+                    SwipeableCardState(screenSize.first, screenSize.second)
+                }
+            }
+        }else{
+            val personAAPIFaceParametrizeController = PersonAAPIFaceParametrizeController(this@PersonaFinderViewModel.faceForChoosing)
+            personAAPIFaceParametrizeController.sendFeatures(this@PersonaFinderViewModel.personAFeatures, amount)
             this@PersonaFinderViewModel.faceCardSwipeStates.value = List(amount){
                 SwipeableCardState(screenSize.first, screenSize.second)
             }
         }
+
     }
 }

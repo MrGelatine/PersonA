@@ -10,7 +10,9 @@ import android.util.Base64
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +26,7 @@ import java.io.ByteArrayOutputStream
 
 class FaceInfoViewModel: ViewModel() {
     var faceData: MutableState<FaceData?> = mutableStateOf(null)
+
     fun sendFaceForFeatures(){
         viewModelScope.launch(Dispatchers.IO) {
             val personaAPIController = PersonAAPIFaceInfoController(faceData)
