@@ -65,7 +65,7 @@ class PersonaFinderViewModel : ViewModel(){
         featureSelection.value = false
 
     }
-    fun generateInitFaces(amount: Int){
+    fun prepareFaces(amount: Int){
         restartViewModel()
         faceAmount.value = amount
         if(personAFeatures.isEmpty()){

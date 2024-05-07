@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,7 +61,7 @@ fun PersonaFinderScreen(
                     prePersonAFace = prePersonAFace,
                     featureSelection = featureSelection,
                     featureCollection = selectedFeature,
-                    restartCallback = { personaFinderViewModel.generateInitFaces(10) }
+                    restartCallback = { personaFinderViewModel.prepareFaces(10) }
                 )
             } else {
                 if(facesForChoosing.value != null){
@@ -94,7 +95,7 @@ fun prePersonAFace(
     restartCallback: () -> Unit
 ){
     var selection by featureSelection
-    var selectedFeature = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
+    var selectedFeature = remember{ mutableStateMapOf<String, Float>() }
     Column {
         Row{
             prePersonAFace!![0].image?.let {
@@ -114,7 +115,7 @@ fun prePersonAFace(
                     .weight(1f)
                     .padding(10.dp) )
                 Button(onClick = {
-                    featureCollection.putAll(selectedFeature.value)
+                    featureCollection.putAll(selectedFeature)
                     restartCallback()
                                  },
                     modifier = Modifier.weight(1f)) {

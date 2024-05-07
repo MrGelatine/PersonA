@@ -29,9 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,8 +63,15 @@ fun FaceInfoScreen(
     personAFinderViewModel: PersonaFinderViewModel
 
 ){
+    val screenWidth = with(LocalDensity.current) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+    val screenHeight = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
     val faceData by faceInfoViewModel.faceData
-    val featureToSearch = remember{ mutableStateOf(mutableMapOf<String, Float>()) }
+    val featureToSearch = remember{ mutableStateMapOf<String, Float>() }
+
     Column {
         faceData?.image?.let {
             Image(
@@ -89,7 +98,7 @@ fun FaceInfoScreen(
                         faceData?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
-                enabled = !featureToSearch.value.isEmpty() || faceData?.rawEmbedding != null,
+                enabled = !featureToSearch.isEmpty() || faceData?.rawEmbedding != null,
                 modifier = Modifier
                     .height(60.dp)
                     .fillMaxWidth()
@@ -97,13 +106,33 @@ fun FaceInfoScreen(
             ) {
                 Text(text = "Load familiars")
             }
+
+        }
+        Row(modifier = Modifier.weight(0.25f)) {
+            Button(
+                enabled = featureToSearch.size > 0,
+                onClick = {
+                    personAFinderViewModel.personAFeatures.putAll(featureToSearch)
+                    personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
+                    personAFinderViewModel.embeddingsSize = 9216
+                    personAFinderViewModel.prepareFaces(10)
+                    navigateToPersonAFormation()
+                },
+                modifier = Modifier
+                    .height(60.dp)
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.Bottom)
+            )
+            {
+                Text(text = "Start PersonA Formation")
+            }
         }
     }
 }
 
 @Composable
 fun FaceFeaturePreviewed(
-    featureToSearch: MutableState<MutableMap<String, Float>>,
+    featureToSearch: SnapshotStateMap<String, Float>,
     faceData: FaceData,
     featureCollection: MutableMap<String, Float>? = null,
     modifier: Modifier
@@ -129,7 +158,7 @@ fun FaceFeaturePreviewed(
 @Composable
 fun FeatureList(
         faceData: FaceData,
-        featureToSearch: MutableState<MutableMap<String, Float>>,
+        featureToSearch: SnapshotStateMap<String, Float>,
         featureCollection: MutableMap<String, Float>?
 ){
     var longTapState by remember{ mutableStateOf(false) }
@@ -149,9 +178,9 @@ fun FeatureList(
                 onClick = {
                     buttonState = !buttonState
                     if(buttonState){
-                        featureToSearch.value[it.key] = it.value
+                        featureToSearch[it.key] = it.value
                     }else{
-                        featureToSearch.value.remove(it.key)
+                        featureToSearch.remove(it.key)
                     }
                 },
                 modifier = Modifier

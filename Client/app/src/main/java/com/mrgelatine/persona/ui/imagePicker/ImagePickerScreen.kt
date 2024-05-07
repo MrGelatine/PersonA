@@ -48,7 +48,7 @@ fun ImagePickerScreen(
         Button(onClick = {
             personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
             personAFinderViewModel.embeddingsSize = 9216
-            personAFinderViewModel.generateInitFaces(10)
+            personAFinderViewModel.prepareFaces(10)
             navigateToPersonaFinder()
         }
         ) {
