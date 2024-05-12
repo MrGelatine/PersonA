@@ -16,15 +16,22 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mrgelatine.persona.PersonAHiltApp
 import com.mrgelatine.persona.api.PersonAAPIFaceInfoController
 import com.mrgelatine.persona.data.FaceData
+import com.mrgelatine.persona.data.PersonARepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
-class FaceInfoViewModel: ViewModel() {
+@HiltViewModel
+class FaceInfoViewModel @Inject constructor(
+    private val repository: PersonARepository
+): ViewModel() {
     var faceData: MutableState<FaceData?> = mutableStateOf(null)
 
     fun sendFaceForFeatures(){
