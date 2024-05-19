@@ -13,10 +13,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.mrgelatine.persona.ui.navigation.PersonANavGraph
 import com.mrgelatine.persona.ui.theme.PersonATheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             PersonATheme {
                 // A surface container using the 'background' color from the theme

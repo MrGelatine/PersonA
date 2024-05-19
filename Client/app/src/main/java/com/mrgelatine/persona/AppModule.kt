@@ -1,5 +1,6 @@
 package com.mrgelatine.persona
 
+import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.mrgelatine.persona.data.PersonADatabase
@@ -15,15 +16,23 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun provideYourDatabase(
-        @ApplicationContext app: Context
-    ) = Room.databaseBuilder(
-        app,
-        PersonADatabase::class.java,
-        "your_db_name"
-    ).build()
+    fun provideYourContext(@ApplicationContext context: Context) = context
 
     @Singleton
     @Provides
-    fun provideYourDao(db: PersonADatabase) = db.faceDataDAO()
+    fun providePersonADatabase(
+        @ApplicationContext appContext: Context
+    ): PersonADatabase {
+        return Room.databaseBuilder(
+            appContext,
+            PersonADatabase::class.java,
+            "face_database"
+        ).build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideFaceDataDAO(db: PersonADatabase) = db.faceDataDAO()
+
+
 }
