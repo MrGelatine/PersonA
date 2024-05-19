@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FaceDataDAO{
     @Query("SELECT * FROM FACE_DATA")
-    suspend fun getAll(): Flow<List<FaceDataEntity>>
+    fun getAll(): Flow<List<FaceDataEntity>>
 
     @Insert
     fun insert(face: FaceDataEntity)
