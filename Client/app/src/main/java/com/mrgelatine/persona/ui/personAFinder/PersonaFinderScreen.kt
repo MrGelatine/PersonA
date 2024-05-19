@@ -1,13 +1,12 @@
 package com.mrgelatine.persona.ui.personAFinder
 
-import android.graphics.BitmapFactory
-import android.util.Base64
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,26 +16,21 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexstyl.swipeablecard.Direction
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
-import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.faceInfo.FaceFeaturePreviewed
-import com.mrgelatine.persona.ui.faceInfo.FeatureList
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 
 object PersonaFinderDestination: NavigationDestination{
@@ -57,7 +51,7 @@ fun PersonaFinderScreen(
     Row {
         Box {
             if (prePersonAFace != null) {
-                prePersonAFace(
+                PrePersonAFace(
                     prePersonAFace = prePersonAFace,
                     featureSelection = featureSelection,
                     featureCollection = selectedFeature,
@@ -88,23 +82,23 @@ fun PersonaFinderScreen(
     }
 }
 @Composable
-fun prePersonAFace(
+fun PrePersonAFace(
     prePersonAFace: List<FaceData>?,
     featureSelection: MutableState<Boolean>,
     featureCollection: MutableMap<String, Float>,
     restartCallback: () -> Unit
 ){
     var selection by featureSelection
-    var selectedFeature = remember{ mutableStateMapOf<String, Float>() }
+    val selectedFeature = remember{ mutableStateMapOf<String, Float>() }
     Column {
         Row{
-            prePersonAFace!![0].image?.let {
+            prePersonAFace?.get(0)?.image?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = "some useful description",
                     modifier = Modifier
-                        .height(prePersonAFace!![0].image!!.height.dp)
-                        .width(prePersonAFace!![0].image!!.width.dp)
+                        .height(prePersonAFace[0].image.height.dp)
+                        .width(prePersonAFace[0].image.width.dp)
                 )
             }
         }
@@ -138,11 +132,13 @@ fun prePersonAFace(
 }
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
-fun  SwipableFaces(facesForChoosing: MutableState<List<FaceData>?>,
-                   swipeCardStates: List<SwipeableCardState>,
-                   swipeCallback: (FaceData, Direction) -> Unit,
-                   counterStatus: Pair<Int, Int?>,
-                   modifier: Modifier){
+fun  SwipableFaces(
+    facesForChoosing: MutableState<List<FaceData>?>,
+    swipeCardStates: List<SwipeableCardState>,
+    swipeCallback: (FaceData, Direction) -> Unit,
+    counterStatus: Pair<Int, Int?>,
+    modifier: Modifier
+){
     val faces = facesForChoosing.value!!
     Column{
         Box{
@@ -162,11 +158,11 @@ fun  SwipableFaces(facesForChoosing: MutableState<List<FaceData>?>,
                         )
                     ) {
                         Image(
-                            bitmap = face.image!!.asImageBitmap(),
+                            bitmap = face.image.asImageBitmap(),
                             contentDescription = "some useful description",
                             modifier = Modifier
-                                .height(face.image!!.height.dp)
-                                .width(face.image!!.width.dp)
+                                .height(face.image.height.dp)
+                                .width(face.image.width.dp)
                         )
                     }
                 }
