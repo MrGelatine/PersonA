@@ -54,6 +54,11 @@ android {
 dependencies {
     val nav_version = "2.7.7"
     val room_version = "2.6.1"
+    val paging_version = "3.3.0"
+
+    //Paging
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation("androidx.paging:paging-compose:3.3.0")
 
     //Room
     annotationProcessor("androidx.room:room-compiler:$room_version")
