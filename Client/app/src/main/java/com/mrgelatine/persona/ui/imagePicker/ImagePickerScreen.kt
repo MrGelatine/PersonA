@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -15,13 +16,18 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrgelatine.persona.R
+import com.mrgelatine.persona.data.FaceDataEntity
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
@@ -36,6 +42,7 @@ object ImagePickerDestination: NavigationDestination{
 fun ImagePickerScreen(
     navigateToImageInfo: () -> Unit,
     navigateToPersonaFinder: () -> Unit,
+    imagePickerViewModel: ImagePickerViewModel,
     faceInfoViewModel: FaceInfoViewModel,
     personAFinderViewModel: PersonaFinderViewModel,
     activity: Activity
@@ -55,6 +62,7 @@ fun ImagePickerScreen(
                 navigateToImageInfo()
             }
     })
+    val personAPaging: LazyPagingItems<FaceDataEntity> = imagePickerViewModel.personAState.collectAsLazyPagingItems()
     Scaffold(
         floatingActionButton = {
             Row {
@@ -78,9 +86,13 @@ fun ImagePickerScreen(
     ) {
         innerPadding ->
             Column(modifier= Modifier.padding(innerPadding)) {
-                val pagerState = rememberPagerState(pageCount = {10})
-                VerticalPager(state = pagerState) {
-
+                LazyColumn {
+                    items(personAPaging.itemCount){index ->
+                        Text(
+                            text = personAPaging[index]?.uid.toString() ?: "Heheh",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
