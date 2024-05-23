@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import java.util.Date
 
 @Database(entities = [FaceDataEntity::class], version = 1)
 @TypeConverters(MapConverter::class)
@@ -49,7 +49,17 @@ class MapConverter{
     }
 
     @TypeConverter
-    fun listToString(lst: List<Float>): String?{
+    fun listToString(lst: List<Float>): String{
         return converter.toJson(lst)
+    }
+
+    @TypeConverter
+    fun dateToLong(date: Date): Long {
+        return date.time
+    }
+
+    @TypeConverter
+    fun longToDate(long: Long): Date {
+        return Date(long)
     }
 }
