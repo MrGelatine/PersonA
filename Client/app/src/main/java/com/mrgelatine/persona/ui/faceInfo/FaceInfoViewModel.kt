@@ -2,6 +2,7 @@ package com.mrgelatine.persona.ui.faceInfo
 
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.graphics.Bitmap
 import android.media.FaceDetector.Face
 import android.net.Uri
@@ -19,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mrgelatine.persona.PersonAHiltApp
 import com.mrgelatine.persona.api.PersonAAPIFaceInfoController
 import com.mrgelatine.persona.data.FaceData
+import com.mrgelatine.persona.data.FaceDataEntity
 import com.mrgelatine.persona.data.PersonARepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +38,7 @@ class FaceInfoViewModel @Inject constructor(
 
     fun sendFaceForFeatures(){
         viewModelScope.launch(Dispatchers.IO) {
-            val personaAPIController = PersonAAPIFaceInfoController(faceData)
+            val personaAPIController = PersonAAPIFaceInfoController(faceData, this@FaceInfoViewModel.viewModelScope, repository)
             personaAPIController.sendFace()
         }
     }
@@ -51,10 +53,10 @@ class FaceInfoViewModel @Inject constructor(
             imageHeight = 256
         }
         faceBitmap = Bitmap.createScaledBitmap(faceBitmap, imageWidth, imageHeight, false)
-        faceData.value = FaceData(null,null,faceBitmap)
+        updateFaceData(FaceData(null,null,faceBitmap))
     }
-    fun isDataReady(): Boolean{
-        return faceData.value?.featureList != null && faceData.value?.rawEmbedding != null
+    fun loadFromPager(face: FaceDataEntity){
+        updateFaceData(FaceData.fromFaceEntity(face))
     }
     fun updateFaceData(face: FaceData){
         viewModelScope.launch{

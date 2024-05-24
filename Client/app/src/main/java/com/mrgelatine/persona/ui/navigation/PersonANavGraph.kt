@@ -16,6 +16,7 @@ import com.mrgelatine.persona.ui.faceInfo.FaceInfoScreen
 import com.mrgelatine.persona.ui.faceInfo.FaceInfoViewModel
 import com.mrgelatine.persona.ui.imagePicker.ImagePickerDestination
 import com.mrgelatine.persona.ui.imagePicker.ImagePickerScreen
+import com.mrgelatine.persona.ui.imagePicker.ImagePickerViewModel
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderScreen
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
@@ -33,6 +34,7 @@ fun PersonANavGraph(
     val faceInfoViewModel: FaceInfoViewModel = viewModel()
     val similarFacesViewModel: SimilarFacesViewModel = viewModel()
     val personAFinderViewModel: PersonaFinderViewModel = viewModel()
+    val imagePickerViewModel: ImagePickerViewModel = viewModel()
     val amount = remember { mutableStateOf(0) }
     NavHost(
         navController = navController,
@@ -45,6 +47,7 @@ fun PersonANavGraph(
                     navigateToImageInfo = {navController.navigate(FaceInfoDestination.route)},
                     navigateToPersonaFinder = {navController.navigate(PersonaFinderDestination.route)},
                     activity = activity,
+                    imagePickerViewModel = imagePickerViewModel,
                     faceInfoViewModel= faceInfoViewModel,
                     personAFinderViewModel = personAFinderViewModel
             )
