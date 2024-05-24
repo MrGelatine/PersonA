@@ -55,6 +55,11 @@ dependencies {
     val nav_version = "2.7.7"
     val room_version = "2.6.1"
     val paging_version = "3.3.0"
+    val camerax_version = "1.4.0-beta01"
+
+    // CameraX
+    implementation("androidx.camera:camera-core:${camerax_version}")
+    implementation("androidx.camera:camera-camera2:${camerax_version}")
 
     //Paging
     implementation("androidx.paging:paging-runtime:$paging_version")
@@ -65,6 +70,7 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-paging:$room_version")
 
     //Coil
     implementation("io.coil-kt:coil-compose:2.5.0")
@@ -99,6 +105,9 @@ dependencies {
     //Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    //CameraX
+    implementation("androidx.camera:camera-viewfinder-compose:1.0.0-alpha01")
 
 }
 kapt {
