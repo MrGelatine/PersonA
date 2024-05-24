@@ -13,8 +13,9 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Singleton
     @Provides
     fun provideYourContext(@ApplicationContext context: Context) = context
@@ -30,7 +31,6 @@ object AppModule {
             "face_database"
         ).build()
     }
-
     @Singleton
     @Provides
     fun provideFaceDataDAO(db: PersonADatabase) = db.faceDataDAO()

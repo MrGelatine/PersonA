@@ -2,7 +2,19 @@ package com.mrgelatine.persona.data
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import java.io.File
+import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 
@@ -20,7 +32,15 @@ class PersonARepository @Inject constructor(
         return savePath
     }
     suspend fun insert(featureList: Map<String, Float>, rawEmbedding: List<Float>, image: String){
-        val face: FaceDataEntity = FaceDataEntity(featureList= featureList, rawEmbedding= rawEmbedding, image= image)
+        val face: FaceDataEntity = FaceDataEntity(featureList= featureList, rawEmbedding= rawEmbedding, image= image, added = Date(System.currentTimeMillis()), modified = Date(System.currentTimeMillis()))
         this.insert(face)
     }
+
+    fun observePagingSource(): Flow<PagingData<FaceDataEntity>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 20),
+            pagingSourceFactory = { faceDataDAO.getAllPaging() }
+        ).flow
+    }
+
 }

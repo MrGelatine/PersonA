@@ -1,5 +1,6 @@
 package com.mrgelatine.persona.api
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -7,9 +8,9 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.google.gson.GsonBuilder
 import com.mrgelatine.persona.data.FaceData
+import com.mrgelatine.persona.data.PersonARepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -17,8 +18,17 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.nio.file.Paths
+import java.util.UUID
+import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
+import kotlin.io.path.pathString
 
-class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>) :
+
+class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>,val saveScope: CoroutineScope, val repository: PersonARepository) :
     Callback<FaceInfoResponse> {
     fun sendFace() {
         val gson = GsonBuilder()
@@ -41,11 +51,24 @@ class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>) :
     override fun onResponse(call: Call<FaceInfoResponse>, response: Response<FaceInfoResponse>) {
         if (response.isSuccessful) {
             val responseFields: FaceInfoResponse = response.body()!!
-            faceInfo.value = FaceData(
-                responseFields.faceFeatures,
-                responseFields.rawEmbedding,
-                faceInfo.value?.image
-            )
+            faceInfo.value = faceInfo.value?.image?.let {
+                FaceData(
+                    responseFields.faceFeatures,
+                    responseFields.rawEmbedding,
+                    it
+                )
+            }
+
+            val facePath: String? = faceInfo.value?.image?.let { repository.saveImageToStorage(it) }
+            saveScope.launch (Dispatchers.IO){
+                if (facePath != null) {
+                    repository.insert(responseFields.faceFeatures,
+                        responseFields.rawEmbedding,
+                        facePath)
+                }
+            }
+
+
         } else {
             println(response.errorBody())
         }
