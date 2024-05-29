@@ -46,6 +46,7 @@ import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
 import com.mrgelatine.persona.ui.personAFinder.PersonaFinderViewModel
 import com.mrgelatine.persona.ui.similarFaces.SimilarFacesViewModel
+import java.util.LinkedList
 
 
 object FaceInfoDestination: NavigationDestination{
@@ -70,7 +71,7 @@ fun FaceInfoScreen(
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
     val faceData by faceInfoViewModel.faceData
-    val featureToSearch = remember{ mutableStateMapOf<String, Float>() }
+    val tagsToSearch = remember{ LinkedList<String>() }
 
     Column {
         faceData?.image?.let {
@@ -85,7 +86,7 @@ fun FaceInfoScreen(
         }
         FaceFeaturePreviewed(
             faceData = faceData!!,
-            featureToSearch = featureToSearch,
+            tagsToSearch = tagsToSearch,
             modifier = Modifier
                 .align(alignment = Alignment.CenterHorizontally)
                 .weight(1f)
@@ -98,7 +99,7 @@ fun FaceInfoScreen(
                         faceData?.rawEmbedding!!, 10)
                     navigateToFaces()
                 },
-                enabled = !featureToSearch.isEmpty() || faceData?.rawEmbedding != null,
+                enabled = !tagsToSearch.isEmpty() || faceData?.rawEmbedding != null,
                 modifier = Modifier
                     .height(60.dp)
                     .fillMaxWidth()
@@ -110,9 +111,9 @@ fun FaceInfoScreen(
         }
         Row(modifier = Modifier.weight(0.25f)) {
             Button(
-                enabled = featureToSearch.size > 0,
+                enabled = tagsToSearch.size > 0,
                 onClick = {
-                    personAFinderViewModel.personAFeatures.putAll(featureToSearch)
+                    personAFinderViewModel.personAFeatures.putAll(faceData!!.featureList!!)
                     personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
                     personAFinderViewModel.embeddingsSize = 9216
                     personAFinderViewModel.prepareFaces(10)
@@ -132,7 +133,7 @@ fun FaceInfoScreen(
 
 @Composable
 fun FaceFeaturePreviewed(
-    featureToSearch: SnapshotStateMap<String, Float>,
+    tagsToSearch: LinkedList<String>,
     faceData: FaceData,
     featureCollection: MutableMap<String, Float>? = null,
     modifier: Modifier
@@ -142,7 +143,7 @@ fun FaceFeaturePreviewed(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
         ) {
-            FeatureList(faceData, featureToSearch, featureCollection)
+            FeatureList(faceData, tagsToSearch, featureCollection)
         }
     } else {
         Row(modifier = modifier){
@@ -157,13 +158,13 @@ fun FaceFeaturePreviewed(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FeatureList(
-        faceData: FaceData,
-        featureToSearch: SnapshotStateMap<String, Float>,
-        featureCollection: MutableMap<String, Float>?
+    faceData: FaceData,
+    tagsToSearch: LinkedList<String>,
+    featureCollection: MutableMap<String, Float>?
 ){
     var longTapState by remember{ mutableStateOf(false) }
     val filteredFeatures = if (featureCollection?.entries != null) faceData.featureList?.filter { !featureCollection.containsKey(it.key) } else faceData.featureList
-    filteredFeatures?.forEach {
+    faceData.tags?.forEach {
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp)
@@ -178,9 +179,9 @@ fun FeatureList(
                 onClick = {
                     buttonState = !buttonState
                     if(buttonState){
-                        featureToSearch[it.key] = it.value
+                        tagsToSearch.add(it)
                     }else{
-                        featureToSearch.remove(it.key)
+                        tagsToSearch.remove(it)
                     }
                 },
                 modifier = Modifier
@@ -196,7 +197,7 @@ fun FeatureList(
                     )
             ) {
                 Text(
-                    text = it.key + it.value,
+                    text = it,
                     textAlign = TextAlign.End,
                     modifier = Modifier.align(alignment = Alignment.End)
                 )

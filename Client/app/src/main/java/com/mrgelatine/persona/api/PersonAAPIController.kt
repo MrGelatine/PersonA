@@ -55,7 +55,8 @@ class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>,val sav
                 FaceData(
                     responseFields.faceFeatures,
                     responseFields.rawEmbedding,
-                    it
+                    it,
+                    responseFields.tags
                 )
             }
 
