@@ -31,8 +31,8 @@ class PersonARepository @Inject constructor(
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
         return savePath
     }
-    suspend fun insert(featureList: Map<String, Float>, rawEmbedding: List<Float>, image: String){
-        val face: FaceDataEntity = FaceDataEntity(featureList= featureList, rawEmbedding= rawEmbedding, image= image, added = Date(System.currentTimeMillis()), modified = Date(System.currentTimeMillis()))
+    suspend fun insert(featureList: Map<String, Float>, rawEmbedding: List<Float>, image: String, tags: List<String>){
+        val face: FaceDataEntity = FaceDataEntity(featureList= featureList, rawEmbedding= rawEmbedding, image= image, tags= tags, added = Date(System.currentTimeMillis()), modified = Date(System.currentTimeMillis()))
         this.insert(face)
     }
 

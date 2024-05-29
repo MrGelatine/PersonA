@@ -65,7 +65,8 @@ class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>,val sav
                 if (facePath != null) {
                     repository.insert(responseFields.faceFeatures,
                         responseFields.rawEmbedding,
-                        facePath)
+                        facePath,
+                        responseFields.tags)
                 }
             }
 

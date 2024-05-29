@@ -15,6 +15,7 @@ data class FaceDataEntity (
     @ColumnInfo(name="features") var featureList: Map<String, Float>,
     @ColumnInfo(name="embedding") var rawEmbedding: List<Float>,
     @ColumnInfo(name="image") var image: String,
+    @ColumnInfo(name="tags") var tags: List<String>,
     @ColumnInfo(name="date_added") var added: Date,
     @ColumnInfo(name="date_modified") var modified: Date,
 ){

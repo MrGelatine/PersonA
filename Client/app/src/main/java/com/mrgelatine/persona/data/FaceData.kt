@@ -18,7 +18,7 @@ data class FaceData(
         fun fromFaceEntity(face: FaceDataEntity): FaceData{
             val imgFile = File(face.image)
             val image = BitmapFactory.decodeFile(imgFile.absolutePath)
-            return FaceData(face.featureList, face.rawEmbedding, image)
+            return FaceData(face.featureList, face.rawEmbedding, image, face.tags)
         }
     }
 }

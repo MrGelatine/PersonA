@@ -43,13 +43,24 @@ class MapConverter{
     }
 
     @TypeConverter
-    fun stringToList(str:String?): List<Float>{
+    fun stringToFloatList(str:String?): List<Float>{
         val mapType = object : TypeToken<List<Float>>() {}.type
         return converter.fromJson(str, mapType)
     }
 
     @TypeConverter
-    fun listToString(lst: List<Float>): String{
+    fun stringToStringList(str:String?): List<String>{
+        val mapType = object : TypeToken<List<String>>() {}.type
+        return converter.fromJson(str, mapType)
+    }
+
+    @TypeConverter
+    fun floatListToString(lst: List<Float>): String{
+        return converter.toJson(lst)
+    }
+
+    @TypeConverter
+    fun stringListToString(lst: List<String>): String{
         return converter.toJson(lst)
     }
 
