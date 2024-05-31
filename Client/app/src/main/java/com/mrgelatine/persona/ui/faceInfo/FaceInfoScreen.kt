@@ -96,7 +96,7 @@ fun FaceInfoScreen(
             Button(
                 onClick = {
                     similarFacesViewModel.sendFeatureForFaces(
-                        faceData?.rawEmbedding!!, 10)
+                        faceData!!, 10)
                     navigateToFaces()
                 },
                 enabled = !tagsToSearch.isEmpty() || faceData?.rawEmbedding != null,

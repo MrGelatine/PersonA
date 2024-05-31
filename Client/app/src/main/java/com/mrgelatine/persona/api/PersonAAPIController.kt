@@ -84,7 +84,7 @@ class PersonAAPIFaceInfoController(var faceInfo: MutableState<FaceData?>,val sav
 }
 
 class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>?>): Callback<SimilarFacesResponse> {
-    fun sendEmbedding(rawEmbedding: List<Float>, amount: Int) {
+    fun sendEmbedding(rawEmbedding: List<Float>, amount: Int, tags:List<String>? = null, featureList:MutableMap<String, Float>? = null) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -93,7 +93,7 @@ class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(rawEmbedding, amount))
+        val call: Call<SimilarFacesResponse> = personAAPI.findFaces(SimilarFacesRequest(featureList, rawEmbedding, tags, amount))
         call.enqueue(this)
     }
 
@@ -106,7 +106,7 @@ class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>
                 val decodedString: ByteArray = Base64.decode(face.rawImage, Base64.DEFAULT)
                 val decodedFace =
                     BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace))
+                similarfacesData.add(FaceData(face.faceFeatures,face.rawEmbedding, decodedFace, face.tags))
             }
             Log.d("finish_similar_faces_retrofit", responseFields.similarFaces.size.toString())
             facesData.value = similarfacesData.toList()
@@ -123,7 +123,7 @@ class PersonAAPISimilarFaceController(var facesData: MutableState<List<FaceData>
 }
 
 class PersonAAPIFaceParametrizeController(var facesData: MutableState<List<FaceData>?>): Callback<FaceParametrizeResponse> {
-    fun sendFeatures(faceFeatures: Map<String,Float>, amount: Int) {
+    fun sendFeatures(featureList: MutableMap<String, Float>, tags: List<String>, amount: Int) {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -132,7 +132,7 @@ class PersonAAPIFaceParametrizeController(var facesData: MutableState<List<FaceD
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val personAAPI: PersonAAPI = retrofit.create(PersonAAPI::class.java)
-        val call: Call<FaceParametrizeResponse> = personAAPI.findParametrizedFaces(FaceParametrizeRequest(faceFeatures, amount))
+        val call: Call<FaceParametrizeResponse> = personAAPI.findParametrizedFaces(FaceParametrizeRequest(featureList, tags, amount))
         call.enqueue(this)
     }
 

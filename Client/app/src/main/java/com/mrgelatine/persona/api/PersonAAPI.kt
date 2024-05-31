@@ -19,7 +19,9 @@ data class FaceInfoResponse(
 )
 
 data class SimilarFacesRequest(
+    @SerializedName("face_features") val faceFeatures: Map<String, Float>? = null,
     @SerializedName("raw_embedding") val rawEmbedding: List<Float>,
+    @SerializedName("tags") val tags: List<String>?,
     @SerializedName("amount") val amount: Int
 )
 
@@ -29,6 +31,7 @@ data class SimilarFacesResponse(
 
 data class FaceParametrizeRequest(
     @SerializedName("face_features") val faceFeatures: Map<String,Float>,
+    @SerializedName("tags") val tags: List<String>,
     @SerializedName("amount") val amount: Int
 )
 

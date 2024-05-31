@@ -53,7 +53,7 @@ fun SimilarFacesScreen(
                         contentDescription = "some useful description",
                         modifier = Modifier.clickable {
                             faceInfoViewModel.updateFaceData(
-                                FaceData(similarFace.featureList, similarFace.rawEmbedding, similarFace.image)
+                                similarFace
                             )
                             navigateToFaceInfo()
                         }

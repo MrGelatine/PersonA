@@ -11,7 +11,7 @@ import java.io.File
 data class FaceData(
     var featureList: Map<String, Float>? = mapOf(),
     var rawEmbedding: List<Float>? = listOf(),
-    var image: Bitmap,
+    var image: Bitmap? = null,
     var tags: List<String>? = null
 ){
     companion object{

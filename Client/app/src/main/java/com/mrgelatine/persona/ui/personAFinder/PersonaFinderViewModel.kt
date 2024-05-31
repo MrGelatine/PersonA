@@ -31,6 +31,7 @@ class PersonaFinderViewModel : ViewModel(){
     var faceAmount: MutableState<Int?> = mutableStateOf(null)
 
     var featureSelection:MutableState<Boolean> = mutableStateOf(false)
+    var personATags: MutableList<String> = mutableListOf()
     var personAFeatures: MutableMap<String, Float> = mutableMapOf()
 
 
@@ -59,16 +60,18 @@ class PersonaFinderViewModel : ViewModel(){
     }
     fun restartViewModel(){
         choosedFaces.clear()
+        personATags.clear()
         faceCounter.value = 0
         prePersonAFace.value = null
         faceForChoosing.value = null
         featureSelection.value = false
+        personATags.clear()
 
     }
     fun prepareFaces(amount: Int){
         restartViewModel()
         faceAmount.value = amount
-        if(personAFeatures.isEmpty()){
+        if(personATags.isEmpty()){
             viewModelScope.launch(Dispatchers.IO) {
                 val personaAPIController = PersonAAPIRandomFacesController(this@PersonaFinderViewModel.faceForChoosing)
 
@@ -79,7 +82,7 @@ class PersonaFinderViewModel : ViewModel(){
             }
         }else{
             val personAAPIFaceParametrizeController = PersonAAPIFaceParametrizeController(this@PersonaFinderViewModel.faceForChoosing)
-            personAAPIFaceParametrizeController.sendFeatures(this@PersonaFinderViewModel.personAFeatures, amount)
+            personAAPIFaceParametrizeController.sendFeatures(this@PersonaFinderViewModel.personAFeatures,this@PersonaFinderViewModel.personATags, amount)
             this@PersonaFinderViewModel.faceCardSwipeStates.value = List(amount){
                 SwipeableCardState(screenSize.first, screenSize.second)
             }

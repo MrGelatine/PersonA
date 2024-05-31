@@ -32,6 +32,7 @@ import com.mrgelatine.persona.R
 import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.faceInfo.FaceFeaturePreviewed
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
+import java.util.LinkedList
 
 object PersonaFinderDestination: NavigationDestination{
     override val route: String = "persona_finder"
@@ -47,14 +48,16 @@ fun PersonaFinderScreen(
     val prePersonAFace by personaFinderViewModel.prePersonAFace
 
     val featureSelection = personaFinderViewModel.featureSelection
-    val selectedFeature = personaFinderViewModel.personAFeatures
+    val selectedTags = personaFinderViewModel.personATags
+    val featureCollection = personaFinderViewModel.personAFeatures
     Row {
         Box {
             if (prePersonAFace != null) {
                 PrePersonAFace(
                     prePersonAFace = prePersonAFace,
-                    featureSelection = featureSelection,
-                    featureCollection = selectedFeature,
+                    tagsSelection = featureSelection,
+                    tagsCollection = selectedTags,
+                    featureCollection = featureCollection,
                     restartCallback = { personaFinderViewModel.prepareFaces(10) }
                 )
             } else {
@@ -84,32 +87,38 @@ fun PersonaFinderScreen(
 @Composable
 fun PrePersonAFace(
     prePersonAFace: List<FaceData>?,
-    featureSelection: MutableState<Boolean>,
+    tagsSelection: MutableState<Boolean>,
+    tagsCollection: MutableList<String>,
     featureCollection: MutableMap<String, Float>,
     restartCallback: () -> Unit
 ){
-    var selection by featureSelection
-    val selectedFeature = remember{ mutableStateMapOf<String, Float>() }
+    var selection by tagsSelection
+    val selectedTags = remember{ LinkedList<String>() }
+    val face = remember{prePersonAFace?.get(0)}
     Column {
         Row{
-            prePersonAFace?.get(0)?.image?.let {
+            face?.image?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = "some useful description",
                     modifier = Modifier
-                        .height(prePersonAFace[0].image.height.dp)
-                        .width(prePersonAFace[0].image.width.dp)
+                        .height(face.image!!.height.dp)
+                        .width(face.image!!.width.dp)
                 )
             }
         }
         if(selection){
             Column {
-                FaceFeaturePreviewed(faceData = prePersonAFace!![0], featureToSearch = selectedFeature, featureCollection= featureCollection, modifier = Modifier
+
+                FaceFeaturePreviewed(faceData = prePersonAFace!![0], tagsToSearch = selectedTags, featureCollection= featureCollection, modifier = Modifier
                     .align(alignment = Alignment.CenterHorizontally)
                     .weight(1f)
                     .padding(10.dp) )
+
+
                 Button(onClick = {
-                    featureCollection.putAll(selectedFeature)
+                    featureCollection.putAll(face?.featureList!!)
+                    tagsCollection.addAll(selectedTags)
                     restartCallback()
                                  },
                     modifier = Modifier.weight(1f)) {
@@ -158,11 +167,11 @@ fun  SwipableFaces(
                         )
                     ) {
                         Image(
-                            bitmap = face.image.asImageBitmap(),
+                            bitmap = face.image!!.asImageBitmap(),
                             contentDescription = "some useful description",
                             modifier = Modifier
-                                .height(face.image.height.dp)
-                                .width(face.image.width.dp)
+                                .height(face.image!!.height.dp)
+                                .width(face.image!!.width.dp)
                         )
                     }
                 }
