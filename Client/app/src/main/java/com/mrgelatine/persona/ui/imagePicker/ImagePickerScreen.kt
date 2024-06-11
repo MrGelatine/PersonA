@@ -7,20 +7,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -93,12 +106,7 @@ fun ImagePickerScreen(
     Scaffold(
         floatingActionButton = {
             Row {
-                FloatingActionButton(
-                    onClick = {imagePickerDialog.launch("image/*")}
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                }
-                FloatingActionButton(
+                Button(
                     onClick = {
                         personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
                         personAFinderViewModel.embeddingsSize = 9216
@@ -120,7 +128,11 @@ fun ImagePickerScreen(
     ) {
         innerPadding ->
             Column(modifier= Modifier.padding(innerPadding)) {
-                LazyColumn {
+                LazyVerticalGrid(
+                    columns= GridCells.Adaptive(100.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(vertical = 10.dp, horizontal = 10.dp)
+                ) {
                     items(personAPaging.itemCount){index ->
                         PersonAInfoHistoryLine(face = personAPaging[index]!!
                         ) {
@@ -140,25 +152,34 @@ fun PersonAInfoHistoryLine(face: FaceDataEntity,clickCallback: () -> Unit){
             onClick = {clickCallback()}
         )
     ){
-        AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-            .data(face.image)
-            .placeholder(R.drawable.ic_launcher_foreground)
-            .build(),
-        contentDescription = "Face Picture")
+        OutlinedCard(shape= RectangleShape
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(face.image)
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .build(),
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp),
+                contentDescription = "Face Picture"
+            )
 
-        val timePassed = FaceDataEntity.duration(face.added, Date(System.currentTimeMillis()))
-        if (timePassed["years"]!! > 0 || timePassed["months"]!! > 0){
-            Text(face.added.toString())
-        }else if(timePassed["days"]!! > 0){
-            Text( "${timePassed["days"]!!} days ago")
-        }else if(timePassed["hours"]!! > 0){
-            Text( "${timePassed["hours"]!!} hours ago")
-        }else if(timePassed["minutes"]!! > 0){
-            Text( "${timePassed["minutes"]!!} minutes ago")
-        }else if(timePassed["seconds"]!! > 10){
-            Text("${timePassed["seconds"]!!} seconds ago")
-        }else{
-            Text("a few second ago")
+            val timePassed = FaceDataEntity.duration(face.added, Date(System.currentTimeMillis()))
+            if (timePassed["years"]!! > 0 || timePassed["months"]!! > 0) {
+                Text(face.added.toString())
+            } else if (timePassed["days"]!! > 0) {
+                Text("${timePassed["days"]!!} days ago")
+            } else if (timePassed["hours"]!! > 0) {
+                Text("${timePassed["hours"]!!} hours ago")
+            } else if (timePassed["minutes"]!! > 0) {
+                Text("${timePassed["minutes"]!!} minutes ago")
+            } else if (timePassed["seconds"]!! > 10) {
+                Text("${timePassed["seconds"]!!} seconds ago")
+            } else {
+                Text("a few second ago")
+            }
         }
 
     }
