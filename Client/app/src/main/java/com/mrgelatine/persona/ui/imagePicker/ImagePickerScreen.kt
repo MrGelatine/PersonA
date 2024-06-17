@@ -11,25 +11,36 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -56,7 +67,7 @@ object ImagePickerDestination: NavigationDestination{
     override val titleRes: Int = R.string.image_picker_title
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImagePickerScreen(
     navigateToImageInfo: () -> Unit,
@@ -105,8 +116,21 @@ fun ImagePickerScreen(
     val personAPaging: LazyPagingItems<FaceDataEntity> = imagePickerViewModel.personAState.collectAsLazyPagingItems()
     Scaffold(
         floatingActionButton = {
-            Row {
-                Button(
+            Row(modifier= Modifier.wrapContentHeight()) {
+                FloatingActionButton(
+                    modifier= Modifier.wrapContentSize().padding(end = 10.dp),
+                    shape = RoundedCornerShape(30),
+                    onClick = {imagePickerDialog.launch("image/*")},
+                ) {
+
+                    Icon(
+                        imageVector= Icons.Default.Search,
+                        contentDescription = null,
+                    )
+                }
+                FloatingActionButton(
+                    modifier= Modifier.wrapContentSize().padding(end = 10.dp),
+                    shape = RoundedCornerShape(30),
                     onClick = {
                         personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
                         personAFinderViewModel.embeddingsSize = 9216
@@ -116,9 +140,12 @@ fun ImagePickerScreen(
                 ) {
                     Icon(Icons.Default.Face, contentDescription = null)
                 }
-                FloatingActionButton(onClick = {
-                    permissionDialog.launch(Manifest.permission.CAMERA)
-                }
+                FloatingActionButton(
+                    modifier= Modifier.wrapContentSize().padding(end = 10.dp),
+                    shape = RoundedCornerShape(30),
+                    onClick = {
+                        permissionDialog.launch(Manifest.permission.CAMERA)
+                    }
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null
                     )
@@ -152,7 +179,8 @@ fun PersonAInfoHistoryLine(face: FaceDataEntity,clickCallback: () -> Unit){
             onClick = {clickCallback()}
         )
     ){
-        OutlinedCard(shape= RectangleShape
+        Card(shape= RoundedCornerShape(10),
+            modifier= Modifier.padding(5.dp)
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -162,24 +190,31 @@ fun PersonAInfoHistoryLine(face: FaceDataEntity,clickCallback: () -> Unit){
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .width(100.dp)
-                    .height(100.dp),
+                    .height(100.dp)
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .padding(5.dp),
                 contentDescription = "Face Picture"
             )
 
             val timePassed = FaceDataEntity.duration(face.added, Date(System.currentTimeMillis()))
+            var text:String
             if (timePassed["years"]!! > 0 || timePassed["months"]!! > 0) {
-                Text(face.added.toString())
+                text = face.added.toString()
             } else if (timePassed["days"]!! > 0) {
-                Text("${timePassed["days"]!!} days ago")
+                text = "${timePassed["days"]!!} days ago"
             } else if (timePassed["hours"]!! > 0) {
-                Text("${timePassed["hours"]!!} hours ago")
+                text = "${timePassed["hours"]!!} hours ago"
             } else if (timePassed["minutes"]!! > 0) {
-                Text("${timePassed["minutes"]!!} minutes ago")
+                text = "${timePassed["minutes"]!!} minutes ago"
             } else if (timePassed["seconds"]!! > 10) {
-                Text("${timePassed["seconds"]!!} seconds ago")
+                text = "${timePassed["seconds"]!!} seconds ago"
             } else {
-                Text("a few second ago")
+                text = "a second ago"
             }
+            Text(
+                text=text,
+                modifier= Modifier.padding(5.dp)
+            )
         }
 
     }
