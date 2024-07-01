@@ -3,6 +3,7 @@ package com.mrgelatine.persona.ui.faceInfo
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +37,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mrgelatine.persona.R
 import com.mrgelatine.persona.data.FaceData
 import com.mrgelatine.persona.ui.navigation.NavigationDestination
@@ -90,42 +97,59 @@ fun FaceInfoScreen(
             modifier = Modifier
                 .align(alignment = Alignment.CenterHorizontally)
                 .weight(1f)
-                .padding(10.dp)
+                .padding(top=10.dp)
         )
-        Row(modifier = Modifier.weight(0.25f)) {
-            Button(
-                onClick = {
-                    similarFacesViewModel.sendFeatureForFaces(
-                        faceData!!, 10)
-                    navigateToFaces()
-                },
-                enabled = !tagsToSearch.isEmpty() || faceData?.rawEmbedding != null,
-                modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Bottom)
-            ) {
-                Text(text = "Load familiars")
-            }
+        Box(
+            modifier= Modifier.weight(0.5f)
+        ){
+            Column(
+                modifier= Modifier.fillMaxSize()
+            ){
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                ) {
+                    Button(
+                        onClick = {
+                            similarFacesViewModel.sendFeatureForFaces(
+                                faceData!!, 10)
+                            navigateToFaces()
+                        },
+                        enabled = !tagsToSearch.isEmpty() || faceData?.rawEmbedding != null,
+                        modifier = Modifier
+                            .height(60.dp)
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.CenterVertically)
+                    ) {
+                        Text(text = "Load familiars")
+                    }
 
-        }
-        Row(modifier = Modifier.weight(0.25f)) {
-            Button(
-                enabled = tagsToSearch.size > 0,
-                onClick = {
-                    personAFinderViewModel.personAFeatures.putAll(faceData!!.featureList!!)
-                    personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
-                    personAFinderViewModel.embeddingsSize = 9216
-                    personAFinderViewModel.prepareFaces(10)
-                    navigateToPersonAFormation()
-                },
-                modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Bottom)
-            )
-            {
-                Text(text = "Start PersonA Formation")
+                }
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+
+                ) {
+                    Button(
+                        enabled = tagsToSearch.size > 0,
+                        onClick = {
+                            personAFinderViewModel.personAFeatures.putAll(faceData!!.featureList!!)
+                            personAFinderViewModel.screenSize = Pair(screenWidth, screenHeight)
+                            personAFinderViewModel.embeddingsSize = 9216
+                            personAFinderViewModel.prepareFaces(10)
+                            navigateToPersonAFormation()
+                        },
+                        modifier = Modifier
+                            .height(60.dp)
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.CenterVertically)
+                    )
+                    {
+                        Text(text = "Start PersonA Formation")
+                    }
+                }
             }
         }
     }
@@ -196,14 +220,26 @@ fun FeatureList(
                         }
                     )
             ) {
-                Text(
-                    text = it,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.align(alignment = Alignment.End)
-                )
+                Box(
+                    modifier= Modifier.fillMaxSize()
+                ){
+                    Text(
+                        text = it,
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+
+                        modifier = Modifier.align(alignment = Alignment.Center)
+                    )
+                }
             }
             if(buttonState){
-                Checkbox(checked = true, onCheckedChange = {})
+                Checkbox(checked = true,
+                    onCheckedChange = {},
+                    modifier= Modifier
+                        .fillMaxHeight()
+                        .padding(start = 20.dp)
+                )
             }
 
         }
